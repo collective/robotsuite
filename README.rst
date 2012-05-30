@@ -5,7 +5,7 @@ This is an experiment to wrap Robot Framework tests into Python
 unittest framework to make it possible to run Robot Framework tests
 with ``zope.testrunner``'s layered test setups::
 
-    from unittest2 as unittest
+    import unittest2 as unittest
 
     from plone.testing import layered
     from robotsuite import RobotTestSuite
