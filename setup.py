@@ -2,6 +2,11 @@ from setuptools import setup, find_packages
 
 version = "0.1.0"
 
+requires=[
+    "setuptools",
+    "robotframework>=2.7.1",
+    ]
+
 setup(name="robotsuite",
       version=version,
       description="Robot Framework test suite for Python unittest framework",
@@ -22,10 +27,7 @@ setup(name="robotsuite",
       namespace_packages=[],
       include_package_data=True,
       zip_safe=False,
-      install_requires=[
-          "setuptools",
-          "robotframework",
-      ],
+      install_requires=requires,
       extras_require={
       },
       entry_points="""

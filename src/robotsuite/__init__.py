@@ -3,21 +3,27 @@
 
 import unittest2 as unittest
 
+import StringIO
 import doctest
+
 import robot
 
 last_status = None
 last_message = None
 
 
-# XXX: To be able to filter RobotFramework test cases, we mokneypatch
-# robot.TestSuite (imported from robot.running.model.TestSuite) to just
+# XXX: To be able to filter RobotFramework test cases, we monkeypatch
+# robot.run.TestSuite (imported from robot.running.model.TestSuite) to just
 # pass the first datasources as the test suite).
 
 def TestSuite(datasources, settings):
     import robot.running.model
-    return robot.running.model.RunnableTestSuite(datasources[0])
-setattr(robot, 'TestSuite', TestSuite)
+    suite = robot.running.model.RunnableTestSuite(datasources[0])
+    suite.set_options(settings)
+    robot.running.model._check_suite_contains_tests(
+        suite, settings['RunEmptySuite'])
+    return suite
+robot.run.func_globals["TestSuite"] = TestSuite
 
 
 class RobotListener(object):
@@ -37,7 +43,7 @@ class RobotTestCase(unittest.TestCase):
         unittest.TestCase.__init__(self)
 
         filename = doctest._module_relative_path(package, filename)
-        suite = robot.parsing.TestCaseFile(source=filename)
+        suite = robot.parsing.TestData(source=filename)
 
         if 'name' in kw:
             tests = suite.testcase_table.tests
@@ -47,9 +53,16 @@ class RobotTestCase(unittest.TestCase):
         self._robot_suite = suite
 
     def runTest(self):
+        stdout = StringIO.StringIO()
         robot.run(self._robot_suite,
                   listener=('robotsuite.RobotListener',),
-                  log='NONE', report='NONE')
+                  output='NONE', log='NONE', report='NONE', stdout=stdout)
+        stdout.seek(0)
+
+        # dump stdout on test failure or error
+        if last_status != 'PASS':
+            print stdout.read()
+
         assert last_status == 'PASS', last_message
 
 
@@ -62,7 +75,7 @@ def RobotTestSuite(*paths, **kw):
 
     for path in paths:
         filename = doctest._module_relative_path(kw['package'], path)
-        robot_suite = robot.parsing.TestCaseFile(source=filename)
+        robot_suite = robot.parsing.TestData(source=filename)
         # split the robot suite into separate test cases
         for test in robot_suite.testcase_table.tests:
             suite.addTest(RobotTestCase(path, name=test.name, **kw))
