@@ -45,10 +45,16 @@ class RobotTestCase(unittest.TestCase):
         filename = doctest._module_relative_path(package, filename)
         suite = robot.parsing.TestData(source=filename)
 
-        if 'name' in kw:
-            tests = suite.testcase_table.tests
-            suite.testcase_table.tests =\
-                filter(lambda x: x.name == kw['name'], tests)
+        def recurse(child_suite):
+            if 'source' in kw and child_suite.source != kw['source']:
+                child_suite.testcase_table.tests = []
+            if 'name' in kw:
+                tests = child_suite.testcase_table.tests
+                child_suite.testcase_table.tests =\
+                    filter(lambda x: x.name == kw['name'], tests)
+            for grandchild in getattr(child_suite, 'children', []):
+                recurse(grandchild)
+        recurse(suite)
 
         self._robot_suite = suite
 
@@ -76,8 +82,14 @@ def RobotTestSuite(*paths, **kw):
     for path in paths:
         filename = doctest._module_relative_path(kw['package'], path)
         robot_suite = robot.parsing.TestData(source=filename)
+
         # split the robot suite into separate test cases
-        for test in robot_suite.testcase_table.tests:
-            suite.addTest(RobotTestCase(path, name=test.name, **kw))
+        def recurse(child_suite):
+            for test in child_suite.testcase_table.tests:
+                suite.addTest(RobotTestCase(path, name=test.name,
+                                            source=child_suite.source, **kw))
+            for grandchild in getattr(child_suite, 'children', []):
+                recurse(grandchild)
+        recurse(robot_suite)
 
     return suite
