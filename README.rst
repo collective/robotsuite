@@ -24,9 +24,8 @@ with ``zope.testrunner``'s layered test setups::
 This should allow us to run robot test with test isolation and complex
 test setups (like Plone).
 
-Currently, only single file test suites have been tested. *RobotTestSuite*
-splits the test suite into separate unittest test cases so that robot will
-be run once for every test in the suite.
+*RobotTestSuite* splits the test suite into separate unittest test
+cases so that robot will be run once for every test in the suite.
 
 If this works for you, please contribute at:
 http://github.com/datakurre/robotsuite/
