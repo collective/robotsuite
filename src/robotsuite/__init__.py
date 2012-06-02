@@ -23,7 +23,7 @@ def TestSuite(datasources, settings):
     robot.running.model._check_suite_contains_tests(
         suite, settings['RunEmptySuite'])
     return suite
-robot.run.func_globals["TestSuite"] = TestSuite
+robot.run.func_globals['TestSuite'] = TestSuite
 
 
 class RobotListener(object):
