@@ -2,6 +2,13 @@ Changelog
 =========
 
 
+0.3.0 (2012-06-03)
+------------------
+
+- Enabled robotframework reports for tests. Each test suite and each test
+  will have their own outputdir, recursively.
+
+
 0.2.0 (2012-06-02)
 ------------------
 
