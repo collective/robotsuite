@@ -3,6 +3,7 @@
 
 import unittest2 as unittest
 
+import os.path
 import StringIO
 import doctest
 
@@ -57,12 +58,14 @@ class RobotTestCase(unittest.TestCase):
         recurse(suite)
 
         self._robot_suite = suite
+        self._robot_outputdir = kw.get('outputdir', None)
 
     def runTest(self):
         stdout = StringIO.StringIO()
         robot.run(self._robot_suite,
                   listener=('robotsuite.RobotListener',),
-                  output='NONE', log='NONE', report='NONE', stdout=stdout)
+                  outputdir=self._robot_outputdir,
+                  stdout=stdout)
         stdout.seek(0)
 
         # dump stdout on test failure or error
@@ -84,12 +87,22 @@ def RobotTestSuite(*paths, **kw):
         robot_suite = robot.parsing.TestData(source=filename)
 
         # split the robot suite into separate test cases
+        outputdir = []
         def recurse(child_suite):
+            suite_base = os.path.basename(child_suite.source)
+            suite_dir = os.path.splitext(suite_base)[0]
+            outputdir.append(suite_dir)
             for test in child_suite.testcase_table.tests:
+                test_dir = test.normalize(test.name)
+                outputdir.append(test_dir)
                 suite.addTest(RobotTestCase(path, name=test.name,
-                                            source=child_suite.source, **kw))
+                                            source=child_suite.source,
+                                            outputdir='/'.join(outputdir),
+                                            **kw))
+                outputdir.pop()
             for grandchild in getattr(child_suite, 'children', []):
                 recurse(grandchild)
+            outputdir.pop()
         recurse(robot_suite)
 
     return suite
