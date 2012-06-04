@@ -3,9 +3,11 @@
 
 import unittest2 as unittest
 
-import os.path
-import StringIO
+import os
+import string
 import doctest
+import StringIO
+import unicodedata
 
 import robot
 
@@ -25,6 +27,28 @@ def TestSuite(datasources, settings):
         suite, settings['RunEmptySuite'])
     return suite
 robot.run.func_globals['TestSuite'] = TestSuite
+
+
+def normalize(s):
+    """Normalizes non-ascii characters to their closest ascii counterparts
+    and replaces spaces with underscores"""
+    whitelist = (' ' + string.ascii_letters + string.digits)
+
+    if type(s) == str:
+        s = unicode(s, 'utf-8', 'ignore')
+
+    table = {}
+    for ch in [ch for ch in s if ch not in whitelist]:
+        if ch not in table:
+            try:
+                replacement = unicodedata.normalize('NFKD', ch)[0]
+                if replacement in whitelist:
+                    table[ord(ch)] = replacement
+                else:
+                    table[ord(ch)] = u'_'
+            except:
+                table[ord(ch)] = u'_'
+    return s.translate(table).replace(u'_', u'').replace(u' ', u'_')
 
 
 class RobotListener(object):
@@ -57,8 +81,13 @@ class RobotTestCase(unittest.TestCase):
                 recurse(grandchild)
         recurse(suite)
 
+        # set suite to be run bu runTest
         self._robot_suite = suite
+        # set outputdir for log, report and screenshots
         self._robot_outputdir = kw.get('outputdir', None)
+        # set test method name from the test name
+        self._testMethodName = normalize(kw.get('name', 'runTest'))
+        setattr(self, self._testMethodName, self.runTest)
 
     def runTest(self):
         stdout = StringIO.StringIO()
@@ -93,7 +122,7 @@ def RobotTestSuite(*paths, **kw):
             suite_dir = os.path.splitext(suite_base)[0]
             outputdir.append(suite_dir)
             for test in child_suite.testcase_table.tests:
-                test_dir = test.normalize(test.name)
+                test_dir = normalize(test.name)
                 outputdir.append(test_dir)
                 suite.addTest(RobotTestCase(path, name=test.name,
                                             source=child_suite.source,
