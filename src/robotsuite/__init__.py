@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""RobotTestSuite"""
+"""Python unittest test suite for Robot Framework"""
 
 import unittest2 as unittest
 
@@ -15,9 +15,9 @@ last_status = None
 last_message = None
 
 
-# XXX: To be able to filter RobotFramework test cases, we monkeypatch
-# robot.run.TestSuite (imported from robot.running.model.TestSuite) to just
-# pass the first datasources as the test suite).
+# XXX: To be able to filter Robot Framework test cases, we monkeypatch
+# robot.run.TestSuite (imported from robot.running.model.TestSuite)
+# to just pass the first datasources as the test suite).
 
 def TestSuite(datasources, settings):
     import robot.running.model
@@ -52,7 +52,7 @@ def normalize(s):
 
 
 class RobotListener(object):
-    """RobotFramework runner listener"""
+    """Robot Framework test runner test listener"""
 
     def end_test(self, status, message):
         global last_status
@@ -116,7 +116,9 @@ def RobotTestSuite(*paths, **kw):
         robot_suite = robot.parsing.TestData(source=filename)
 
         # split the robot suite into separate test cases
+
         outputdir = []
+
         def recurse(child_suite):
             suite_base = os.path.basename(child_suite.source)
             suite_dir = os.path.splitext(suite_base)[0]
