@@ -62,21 +62,23 @@ class RobotListener(object):
 
 
 class RobotTestCase(unittest.TestCase):
-    """RobotFramework single test suite"""
+    """Robot Framework single test suite"""
 
-    def __init__(self, filename, module_relative=True, package=None, **kw):
+    def __init__(self, filename, module_relative=True, package=None,
+                 source=None, name=None, outputdir=None,
+                 setUp=None, tearDown=None, **kw):
         unittest.TestCase.__init__(self)
 
         filename = doctest._module_relative_path(package, filename)
         suite = robot.parsing.TestData(source=filename)
 
         def recurse(child_suite):
-            if 'source' in kw and child_suite.source != kw['source']:
+            if source and child_suite.source != source:
                 child_suite.testcase_table.tests = []
-            if 'name' in kw:
+            if name:
                 tests = child_suite.testcase_table.tests
                 child_suite.testcase_table.tests =\
-                    filter(lambda x: x.name == kw['name'], tests)
+                    filter(lambda x: x.name == name, tests)
             for grandchild in getattr(child_suite, 'children', []):
                 recurse(grandchild)
         recurse(suite)
@@ -84,10 +86,16 @@ class RobotTestCase(unittest.TestCase):
         # set suite to be run bu runTest
         self._robot_suite = suite
         # set outputdir for log, report and screenshots
-        self._robot_outputdir = kw.get('outputdir', None)
+        self._robot_outputdir = outputdir
         # set test method name from the test name
-        self._testMethodName = normalize(kw.get('name', 'runTest'))
+        self._testMethodName = normalize(name or 'runTest')
         setattr(self, self._testMethodName, self.runTest)
+
+        # set test fixture setup and teardown methods when given
+        if setUp:
+            setattr(self, 'setUp', setUp)
+        if tearDown:
+            setattr(self, 'tearDown', tearDown)
 
     def runTest(self):
         stdout = StringIO.StringIO()
