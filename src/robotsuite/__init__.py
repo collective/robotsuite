@@ -73,7 +73,7 @@ class RobotTestCase(unittest.TestCase):
         def recurse(child_suite):
             if 'source' in kw and child_suite.source != kw['source']:
                 child_suite.testcase_table.tests = []
-            if 'name' in kw:
+            elif 'name' in kw:
                 tests = child_suite.testcase_table.tests
                 child_suite.testcase_table.tests =\
                     filter(lambda x: x.name == kw['name'], tests)
