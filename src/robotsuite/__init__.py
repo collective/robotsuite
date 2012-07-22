@@ -13,6 +13,7 @@ import robot
 
 last_status = None
 last_message = None
+rebot_datasources = []
 
 
 # XXX: To be able to filter Robot Framework test cases, we monkeypatch
@@ -108,6 +109,13 @@ class RobotTestCase(unittest.TestCase):
         # dump stdout on test failure or error
         if last_status != 'PASS':
             print stdout.read()
+
+        # update concatenated robot log and report
+        global rebot_datasources
+        rebot_datasources.append(os.path.join(self._robot_outputdir,
+                                              'output.xml'))
+        robot.rebot(*rebot_datasources, stdout=stdout, output='output.xml',
+                    logtitle='Summary', reporttitle='Summary', name='Summary')
 
         assert last_status == 'PASS', last_message
 
