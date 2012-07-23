@@ -124,7 +124,9 @@ class RobotTestCase(unittest.TestCase):
         global rebot_datasources
         rebot_datasources.append(os.path.join(self._robot_outputdir,
                                               'output.xml'))
-        robot.rebot(*rebot_datasources, stdout=stdout, output='output.xml',
+        robot.rebot(*rebot_datasources, stdout=stdout,
+                    output='robot_output.xml',
+                    log='robot_log.html', report='robot_report.html',
                     logtitle='Summary', reporttitle='Summary', name='Summary')
 
         assert last_status == 'PASS', last_message
