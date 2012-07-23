@@ -6,8 +6,7 @@ Changelog
 ------------------
 
 - Included robotframework test tags as part of tests' string representation
-  to allow test be filtered with tags
-  (e.g. with `zope.testrunner <http://pypi.python.org/pypi/zope.testrunner>`_.
+  to allow test be filtered with tags (e.g. with `zope.testrunner`_).
 - Added creation of concatenated log file.
 
 
