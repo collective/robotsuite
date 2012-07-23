@@ -66,7 +66,7 @@ class RobotTestCase(unittest.TestCase):
     """Robot Framework single test suite"""
 
     def __init__(self, filename, module_relative=True, package=None,
-                 source=None, name=None, outputdir=None,
+                 source=None, name=None, tags=None, outputdir=None,
                  setUp=None, tearDown=None, **kw):
         unittest.TestCase.__init__(self)
 
@@ -90,6 +90,8 @@ class RobotTestCase(unittest.TestCase):
         self._robot_outputdir = outputdir
         # set test method name from the test name
         self._testMethodName = normalize(name or 'runTest')
+        # set tags to be included in test's __str__
+        self._tags = tags
         setattr(self, self._testMethodName, self.runTest)
 
         # set test fixture setup and teardown methods when given
@@ -97,6 +99,14 @@ class RobotTestCase(unittest.TestCase):
             setattr(self, 'setUp', setUp)
         if tearDown:
             setattr(self, 'tearDown', tearDown)
+
+    def __str__(self):
+        tags = ''
+        for tag in (self._tags or []):
+            tags += ' #' + tag
+        return '%s (%s)%s' % (self._testMethodName,
+                              unittest.util.strclass(self.__class__),
+                              tags)
 
     def runTest(self):
         stdout = StringIO.StringIO()
@@ -143,6 +153,7 @@ def RobotTestSuite(*paths, **kw):
                 test_dir = normalize(test.name)
                 outputdir.append(test_dir)
                 suite.addTest(RobotTestCase(path, name=test.name,
+                                            tags=test.tags.value,
                                             source=child_suite.source,
                                             outputdir='/'.join(outputdir),
                                             **kw))
