@@ -33,7 +33,7 @@ robot.run.func_globals['TestSuite'] = TestSuite
 def normalize(s):
     """Normalizes non-ascii characters to their closest ascii counterparts
     and replaces spaces with underscores"""
-    whitelist = (' ' + string.ascii_letters + string.digits)
+    whitelist = (' -' + string.ascii_letters + string.digits)
 
     if type(s) == str:
         s = unicode(s, 'utf-8', 'ignore')
