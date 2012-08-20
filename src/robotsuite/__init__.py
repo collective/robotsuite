@@ -72,17 +72,20 @@ class RobotTestCase(unittest.TestCase):
 
         filename = doctest._module_relative_path(package, filename)
         suite = robot.parsing.TestData(source=filename)
+        suite_parent = os.path.dirname(filename)
 
-        def recurse(child_suite):
+        def recurse(child_suite, test_case, suite_parent):
             if source and child_suite.source != source:
                 child_suite.testcase_table.tests = []
             elif name:
                 tests = child_suite.testcase_table.tests
                 child_suite.testcase_table.tests =\
                     filter(lambda x: x.name == name, tests)
+                test_case._relpath =\
+                    os.path.relpath(child_suite.source, suite_parent)
             for grandchild in getattr(child_suite, 'children', []):
-                recurse(grandchild)
-        recurse(suite)
+                recurse(grandchild, test_case, suite_parent)
+        recurse(suite, self, suite_parent)
 
         # set suite to be run bu runTest
         self._robot_suite = suite
@@ -104,9 +107,7 @@ class RobotTestCase(unittest.TestCase):
         tags = ''
         for tag in (self._tags or []):
             tags += ' #' + tag
-        return '%s (%s)%s' % (self._testMethodName,
-                              unittest.util.strclass(self.__class__),
-                              tags)
+        return '%s (%s)%s' % (self._testMethodName, self._relpath, tags)
 
     def runTest(self):
         stdout = StringIO.StringIO()
