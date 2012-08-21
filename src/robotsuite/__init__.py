@@ -4,6 +4,7 @@
 import unittest2 as unittest
 
 import os
+import re
 import string
 import doctest
 import StringIO
@@ -123,8 +124,19 @@ class RobotTestCase(unittest.TestCase):
 
         # update concatenated robot log and report
         global rebot_datasources
-        rebot_datasources.append(os.path.join(self._robot_outputdir,
-                                              'output.xml'))
+        current_datasource = os.path.join(self._robot_outputdir, 'output.xml')
+
+        # fix screenshot paths to be absolute in the current datasource
+        with open(current_datasource) as handle:
+            data = unicode(handle.read(), 'utf-8')
+        outputdir = os.path.abspath(self._robot_outputdir) + os.path.sep
+        data = re.sub('(href|src)="(selenium-screenshot[^"]+)"',
+                      '\\1="%s\\2"' % outputdir, data)
+        with open(current_datasource, 'w') as handle:
+            handle.write(data.encode('utf-8'))
+
+        # append the current datasource to the datasource list and rebot them
+        rebot_datasources.append(current_datasource)
         robot.rebot(*rebot_datasources, stdout=stdout,
                     output='robot_output.xml',
                     log='robot_log.html', report='robot_report.html',
