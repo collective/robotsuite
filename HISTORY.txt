@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.6.0 (2012-08-21)
+------------------
+
+- Fixed screenshot paths in concatenated report.
+- Fixed test names to include suite filename instead of classname.
+- Fixed to allow dash in normalized test names.
 
 0.5.0 (2012-07-23)
 ------------------
@@ -9,19 +15,16 @@ Changelog
   to allow test be filtered with tags (e.g. with `zope.testrunner`_).
 - Added creation of concatenated log file.
 
-
 0.4.0 (2012-06-04)
 ------------------
 
 - Fixed to rename test method of each test after the actual robot framework
   test run by the test case.
 
-
 0.3.1 (2012-06-03)
 ------------------
 
 - Updated README.
-
 
 0.3.0 (2012-06-03)
 ------------------
@@ -29,12 +32,10 @@ Changelog
 - Enabled robotframework reports for tests. Each test suite and each test
   will have their own outputdir, recursively.
 
-
 0.2.0 (2012-06-02)
 ------------------
 
 - Support for directories as (recursive) suites.
-
 
 0.1.0 (2012-05-30)
 ------------------
