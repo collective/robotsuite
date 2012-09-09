@@ -47,4 +47,4 @@ Yet, this should help anyone wanting to use Robot Framework with
 .. _Plone: http://pypi.python.org/pypi/Plone
 
 If this works for you, please contribute at:
-http://github.com/datakurre/robotsuite/
+http://github.com/collective/robotsuite/
