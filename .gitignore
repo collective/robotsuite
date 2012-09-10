@@ -1,4 +1,12 @@
-dist
+syntax: glob
 
-*.egg-info
+bin
+develop-eggs
+buildout-cache
+parts
+
 *.pyc
+*.mo
+*.egg-info
+
+.installed.cfg
