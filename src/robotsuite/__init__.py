@@ -5,6 +5,7 @@ import unittest2 as unittest
 
 import os
 import re
+import shutil
 import string
 import doctest
 import StringIO
@@ -122,6 +123,11 @@ class RobotTestCase(unittest.TestCase):
         if last_status != 'PASS':
             print stdout.read()
 
+        # XXX: Up to this point, everything was easy. Unfortunately, now we
+        # must merge all the separate test reports into a one big summary and
+        # copy all the captured screenshots into the current working directory
+        # (to make it easy to publish them on Jenkins).
+
         # update concatenated robot log and report
         global rebot_datasources
         current_datasource = os.path.join(self._robot_outputdir, 'output.xml')
@@ -138,10 +144,28 @@ class RobotTestCase(unittest.TestCase):
         # append the current datasource to the datasource list and rebot them
         rebot_datasources.append(current_datasource)
         robot.rebot(*rebot_datasources, stdout=stdout,
-                    output='robot_output.xml',
+                    output='robot_output.xml', log='NONE', report='NONE',
+                    logtitle='Summary', reporttitle='Summary', name='Summary')
+
+        # fix the screenshots paths back to relative in the summary report
+        with open('robot_output.xml') as handle:
+            data = unicode(handle.read(), 'utf-8')
+        screenshots = re.findall('src="([^"]*selenium-screenshot[^"]+)"', data)
+        cwd = os.getcwd()  # current working directory
+        for path in (p for p in screenshots if os.path.isfile(p)):
+            new_path = 'robot_%s' %\
+                os.path.relpath(path, cwd).replace(os.path.sep, '_')
+            shutil.copyfile(path, new_path)
+            data = data.replace(path, new_path)
+        with open('robot_output.xml', 'w') as handle:
+            handle.write(data.encode('utf-8'))
+
+        # generate HTML-reports with the copied images
+        robot.rebot('robot_output.xml', stdout=stdout, output='NONE',
                     log='robot_log.html', report='robot_report.html',
                     logtitle='Summary', reporttitle='Summary', name='Summary')
 
+        # raise AssertionError when the test has failed
         assert last_status == 'PASS', last_message
 
 
