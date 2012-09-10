@@ -48,3 +48,6 @@ Yet, this should help anyone wanting to use Robot Framework with
 
 If this works for you, please contribute at:
 http://github.com/collective/robotsuite/
+
+.. image:: https://secure.travis-ci.org/datakurre/robotsuite.png
+    :target: http://travis-ci.org/datakurre/robotsuite
