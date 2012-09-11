@@ -4,6 +4,7 @@ bin
 develop-eggs
 buildout-cache
 parts
+dist
 
 *.pyc
 *.mo
