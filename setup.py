@@ -1,11 +1,8 @@
 from setuptools import setup, find_packages
 
-version = "0.6.1"
-
-
 setup(
     name="robotsuite",
-    version=version,
+    version="0.6.1",
     description="Robot Framework test suite for Python unittest framework",
     long_description=(open("README.rst").read() + "\n" +
                       open("CHANGES.txt").read()),
@@ -28,6 +25,7 @@ setup(
         "setuptools",
         "unittest2",
         "robotframework>=2.7.1",
+        "lxml",
     ],
     extras_require={"test": [
         "plone.app.testing",

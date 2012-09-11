@@ -6,6 +6,7 @@ import unittest2 as unittest
 import os
 import re
 import shutil
+from lxml import etree
 import string
 import doctest
 import StringIO
@@ -15,10 +16,11 @@ import robot
 
 last_status = None
 last_message = None
-rebot_datasources = []
+
+is_first_report = True  # flag used to reset the report after the first test
 
 
-# XXX: To be able to filter Robot Framework test cases, we monkeypatch
+# NOTE: To be able to filter Robot Framework test cases, we monkeypatch
 # robot.run.TestSuite (imported from robot.running.model.TestSuite)
 # to just pass the first datasources as the test suite).
 
@@ -52,6 +54,110 @@ def normalize(s):
             except:
                 table[ord(ch)] = u'_'
     return s.translate(table).replace(u'_', u'').replace(u' ', u'_')
+
+
+def merge(a, b):
+    """Merges two unicode Robot Framework raports so that report 'b' is merged
+    into report 'a'. This merge may not be complete and may be is lossy. Still,
+    note that the original single test reports will remain untouched."""
+
+    # Iterate throught the currently meged node set
+    for child in b.iterchildren():
+
+        # Merge suites
+        if child.tag == 'suite':
+            source = child.get('source')
+            suites = a.xpath('suite[@source="%s"]' % source)
+            # When mathing suite is found, merge
+            if suites:
+                merge(suites[0], child)
+            # When no matching suite is found, append and fix ids
+            else:
+                suites = a.xpath('suite')
+                child_id = child.get('id')
+                parent_id = a.get('id', '')
+                if parent_id:
+                    suite_id = '%s-s%s' % (parent_id, str(len(suites) + 1))
+                else:
+                    suite_id = 's%s' % str(len(suites) + 1)
+                for node in child.xpath('//*[contains(@id, "%s")]' % child_id):
+                    node.set('id', re.sub('^%s' % child_id, suite_id,
+                                          node.get('id')))
+                a.append(child)
+
+        # Merge keywords
+        elif child.tag == 'kw':
+            name = child.get('name')
+            type_ = child.get('type')
+            keywords = a.xpath('kw[@name="%s" and @type="%s"]' % (name, type_))
+            # When matching keyword is found, merge
+            if len(keywords) == 1:
+                merge(keywords[0], child)
+            # When multiple matching keywords is found, merge with position
+            elif len(keywords) > 1:
+                child_keywords = child.getparent().xpath(
+                    'kw[@name="%s" and @type="%s"]' % (name, type_))
+                child_position = child_keywords.index(child)
+                merge(keywords[min(child_position, len(keywords) - 1)], child)
+            # When no matching suite is found, append
+            else:
+                a.append(child)
+
+        # Merge (append) tests
+        elif child.tag == 'test':
+            tests = a.xpath('test')
+            child.set('id', '%s-t%s' % (a.get('id'), str(len(tests) + 1)))
+            a.append(child)
+
+        # Merge (append) statuses
+        elif child.tag == 'status':
+            a.append(child)
+
+        # Merge statistics
+        elif child.tag == 'statistics':
+            statistics = a.xpath('statistics')
+            # When no statistics are found, append to root
+            if not statistics:
+                a.append(child)
+            # When statistics are found, merge matching or append
+            else:
+                for grandchild in child.xpath('total'):
+                    totals = a.xpath('statistics/total')
+                    if totals:
+                        merge(totals[0], grandchild)
+                    else:
+                        statistics.append(child)
+                for grandchild in child.xpath('suite'):
+                    suites = a.xpath('statistics/suite')
+                    if suites:
+                        merge(suites[0], grandchild)
+                    else:
+                        statistics.append(child)
+
+        # Merge individual statistics
+        elif child.tag == 'stat':
+            stats = a.xpath('stat[text() = "%s"]' % child.text)
+            if stats:
+                stats[0].set('fail', str(int(stats[0].get('fail'))
+                                         + int(child.get('fail'))))
+                stats[0].set('pass', str(int(stats[0].get('pass'))
+                                         + int(child.get('pass'))))
+            else:
+                suites = a.xpath('//suite[@name="%s"]' % child.get('name'))
+                if suites:
+                    child.set('id', suites[0].get('id'))
+                a.append(child)
+
+        # Merge errors
+        elif child.tag == 'errors':
+            errors = a.xpath('errors')
+            # When no errors are found, append to root
+            if not errors:
+                a.append(child)
+            # When errors are found, append the children
+            else:
+                for grandchild in child.iterchildren():
+                    errors[0].append(grandchild)
 
 
 class RobotListener(object):
@@ -89,13 +195,13 @@ class RobotTestCase(unittest.TestCase):
                 recurse(grandchild, test_case, suite_parent)
         recurse(suite, self, suite_parent)
 
-        # set suite to be run bu runTest
+        # Set suite to be run bu runTest
         self._robot_suite = suite
-        # set outputdir for log, report and screenshots
+        # Set outputdir for log, report and screenshots
         self._robot_outputdir = outputdir
-        # set test method name from the test name
+        # Set test method name from the test name
         self._testMethodName = normalize(name or 'runTest')
-        # set tags to be included in test's __str__
+        # Set tags to be included in test's __str__
         self._tags = tags
         setattr(self, self._testMethodName, self.runTest)
 
@@ -119,7 +225,7 @@ class RobotTestCase(unittest.TestCase):
                   stdout=stdout)
         stdout.seek(0)
 
-        # dump stdout on test failure or error
+        # Dump stdout on test failure or error
         if last_status != 'PASS':
             print stdout.read()
 
@@ -128,44 +234,49 @@ class RobotTestCase(unittest.TestCase):
         # copy all the captured screenshots into the current working directory
         # (to make it easy to publish them on Jenkins).
 
-        # update concatenated robot log and report
-        global rebot_datasources
+        # Get full relative path for the 'output.xml' and read it into 'data'
         current_datasource = os.path.join(self._robot_outputdir, 'output.xml')
-
-        # fix screenshot paths to be absolute in the current datasource
         with open(current_datasource) as handle:
             data = unicode(handle.read(), 'utf-8')
-        outputdir = os.path.abspath(self._robot_outputdir) + os.path.sep
+
+        # Copy screenshots in to the current working directory
+        dirname = os.path.dirname(current_datasource)
+        prefix = 'robot_%s_' % dirname.replace(os.path.sep, '_')
+        screenshots = re.findall('src="(selenium-screenshot[^"]+)"', data)
+        for filename in screenshots:
+            path = os.path.join(dirname, filename)
+            if os.path.isfile(path):
+                shutil.copyfile(path, "%s%s" % (prefix, filename))
+        # Fix 'a' and 'img' tags to target the copied versions
         data = re.sub('(href|src)="(selenium-screenshot[^"]+)"',
-                      '\\1="%s\\2"' % outputdir, data)
-        with open(current_datasource, 'w') as handle:
-            handle.write(data.encode('utf-8'))
+                      '\\1="%s\\2"' % prefix, data)
 
-        # append the current datasource to the datasource list and rebot them
-        rebot_datasources.append(current_datasource)
-        robot.rebot(*rebot_datasources, stdout=stdout,
-                    output='robot_output.xml', log='NONE', report='NONE',
-                    logtitle='Summary', reporttitle='Summary', name='Summary')
+        global is_first_report
+        if is_first_report:
+            is_first_report = False
+        else:
+            with open('robot_output.xml') as handle:
+                merged_output = etree.fromstring(handle.read())
+            # Try to merge the new 'output.xml' into the previous one
+            try:
+                current_output = etree.fromstring(data.encode('utf-8'))
+                merge(merged_output, current_output)
+                data = etree.tostring(merged_output)
+            # Catch any exception here and print it (to help fixing it)
+            except Exception, e:
+                import traceback
+                stacktrace = StringIO.StringIO()
+                traceback.print_exc(None, stacktrace)
+                print "ROBOTSUITE ERROR when merging test reports: %s\n%s" %\
+                    (str(e), stacktrace.getvalue())
 
-        # fix the screenshots paths back to relative in the summary report
-        with open('robot_output.xml') as handle:
-            data = unicode(handle.read(), 'utf-8')
-        screenshots = re.findall('src="([^"]*selenium-screenshot[^"]+)"', data)
-        cwd = os.getcwd()  # current working directory
-        for path in (p for p in screenshots if os.path.isfile(p)):
-            new_path = 'robot_%s' %\
-                os.path.relpath(path, cwd).replace(os.path.sep, '_')
-            shutil.copyfile(path, new_path)
-            data = data.replace(path, new_path)
+        # Save the merged 'output.xml' and generate merged reports
         with open('robot_output.xml', 'w') as handle:
             handle.write(data.encode('utf-8'))
-
-        # generate HTML-reports with the copied images
         robot.rebot('robot_output.xml', stdout=stdout, output='NONE',
-                    log='robot_log.html', report='robot_report.html',
-                    logtitle='Summary', reporttitle='Summary', name='Summary')
+                    log='robot_log.html', report='robot_report.html')
 
-        # raise AssertionError when the test has failed
+        # Saise AssertionError when the test has failed
         assert last_status == 'PASS', last_message
 
 
@@ -180,7 +291,7 @@ def RobotTestSuite(*paths, **kw):
         filename = doctest._module_relative_path(kw['package'], path)
         robot_suite = robot.parsing.TestData(source=filename)
 
-        # split the robot suite into separate test cases
+        # Split the robot suite into separate test cases
 
         outputdir = []
 
