@@ -1,6 +1,15 @@
 Changelog
 =========
 
+0.7.0 (2012-09-11)
+------------------
+
+- Implemented custom merge for Robot Framework reports to create better
+  concatenated test report and fully support Robot Framework plugin for
+  Jenkins.
+- Fixed to copy (selenium-)screenshots into the root test directory to
+  make it easier to publish them in Jenkins.
+
 0.6.0 (2012-08-21)
 ------------------
 
