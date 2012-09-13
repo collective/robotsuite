@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.8.0 (2012-09-13)
+------------------
+
+- Added support for setting pybot cli-variables from ROBOT_-prefixed
+  environment variables.
+
 0.7.0 (2012-09-11)
 ------------------
 
