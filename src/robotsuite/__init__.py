@@ -5,12 +5,13 @@ import unittest2 as unittest
 
 import os
 import re
-import shutil
-from lxml import etree
 import string
 import doctest
 import StringIO
 import unicodedata
+
+import shutil
+from lxml import etree
 
 import robot
 
