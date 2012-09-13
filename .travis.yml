@@ -8,4 +8,5 @@ install:
 before_script:
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
+  - "export ROBOT_HTTP_PORT=55001"
 script: bin/test
