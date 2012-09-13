@@ -6,12 +6,17 @@ Library  robotsuite.tests.test_plone.Keywords
 Suite Setup  Start browser
 Suite Teardown  Close all browsers
 
+
+*** Variables ***
+
+${HTTP_PORT} =  8080
+
 *** Test Cases ***
 
 Log in
     ${TEST_USER_NAME} =  Get test user name
     ${TEST_USER_PASSWORD} =  Get test user password
-    Go to  http://localhost:55001/plone/login_form
+    Go to  http://localhost:${HTTP_PORT}/plone/login_form
     Page should contain element  __ac_name
     Input text  __ac_name  ${TEST_USER_NAME}
     Input text  __ac_password  ${TEST_USER_PASSWORD}

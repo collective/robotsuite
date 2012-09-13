@@ -57,6 +57,18 @@ def normalize(s):
     return s.translate(table).replace(u'_', u'').replace(u' ', u'_')
 
 
+def get_robot_variables():
+    """Returns list of Robot Framework -compatible cli-variables parsed
+    from ROBOT_-prefixed environment variables"""
+
+    prefix = 'ROBOT_'
+    variables = []
+    for key in os.environ:
+        if key.startswith(prefix) and len(key) > len(prefix):
+            variables.append('%s:%s' % (key[len(prefix):], os.environ[key]))
+    return variables
+
+
 def merge(a, b):
     """Merges two unicode Robot Framework raports so that report 'b' is merged
     into report 'a'. This merge may not be complete and may be is lossy. Still,
@@ -175,8 +187,8 @@ class RobotTestCase(unittest.TestCase):
     """Robot Framework single test suite"""
 
     def __init__(self, filename, module_relative=True, package=None,
-                 source=None, name=None, tags=None, outputdir=None,
-                 setUp=None, tearDown=None, **kw):
+                 source=None, name=None, tags=None, variables=[],
+                 outputdir=None, setUp=None, tearDown=None, **kw):
         unittest.TestCase.__init__(self)
 
         filename = doctest._module_relative_path(package, filename)
@@ -204,6 +216,8 @@ class RobotTestCase(unittest.TestCase):
         self._testMethodName = normalize(name or 'runTest')
         # Set tags to be included in test's __str__
         self._tags = tags
+        # Set variables to pass for pybot
+        self._variables = variables
         setattr(self, self._testMethodName, self.runTest)
 
         # set test fixture setup and teardown methods when given
@@ -220,7 +234,7 @@ class RobotTestCase(unittest.TestCase):
 
     def runTest(self):
         stdout = StringIO.StringIO()
-        robot.run(self._robot_suite,
+        robot.run(self._robot_suite, variable=self._variables,
                   listener=('robotsuite.RobotListener',),
                   outputdir=self._robot_outputdir,
                   stdout=stdout)
@@ -288,6 +302,8 @@ def RobotTestSuite(*paths, **kw):
     if kw.get('module_relative', True):
         kw['package'] = doctest._normalize_module(kw.get('package'))
 
+    variables = get_robot_variables()
+
     for path in paths:
         filename = doctest._module_relative_path(kw['package'], path)
         robot_suite = robot.parsing.TestData(source=filename)
@@ -305,6 +321,7 @@ def RobotTestSuite(*paths, **kw):
                 outputdir.append(test_dir)
                 suite.addTest(RobotTestCase(path, name=test.name,
                                             tags=test.tags.value,
+                                            variables=variables,
                                             source=child_suite.source,
                                             outputdir='/'.join(outputdir),
                                             **kw))
