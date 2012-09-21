@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.9.0 (2012-09-21)
+------------------
+
+- Added injecting logged errors into captured stdout to be dumped with robot
+  output when a test fails.
+
 0.8.0 (2012-09-13)
 ------------------
 
