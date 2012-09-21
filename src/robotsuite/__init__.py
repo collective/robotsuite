@@ -7,6 +7,7 @@ import os
 import re
 import string
 import doctest
+import logging
 import StringIO
 import unicodedata
 
@@ -220,7 +221,7 @@ class RobotTestCase(unittest.TestCase):
         self._variables = variables
         setattr(self, self._testMethodName, self.runTest)
 
-        # set test fixture setup and teardown methods when given
+        # Set test fixture setup and teardown methods when given
         if setUp:
             setattr(self, 'setUp', setUp)
         if tearDown:
@@ -233,7 +234,20 @@ class RobotTestCase(unittest.TestCase):
         return '%s (%s)%s' % (self._testMethodName, self._relpath, tags)
 
     def runTest(self):
+        # Create StringIO to capture stdout into
         stdout = StringIO.StringIO()
+
+        # Inject logged errors into our captured stdout
+        logger = logging.getLogger()
+        handler = logging.StreamHandler(stdout)
+        formatter = logging.Formatter("\n"
+                                      "%(asctime)s - %(name)s - "
+                                      "%(levelname)s - %(message)s")
+        handler.setFormatter(formatter)
+        handler.setLevel(logging.ERROR)
+        logger.addHandler(handler)
+
+        # Run robot with capturing stdout
         robot.run(self._robot_suite, variable=self._variables,
                   listener=('robotsuite.RobotListener',),
                   outputdir=self._robot_outputdir,
