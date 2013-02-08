@@ -37,8 +37,6 @@ robot.run.func_globals['TestSuite'] = TestSuite
 
 def normalize(s):
     """Normalize non-ascii characters to their closest ascii counterparts
-    and replaces spaces with underscores
-
     """
     whitelist = (' -' + string.ascii_letters + string.digits)
 
@@ -56,7 +54,7 @@ def normalize(s):
                     table[ord(ch)] = u'_'
             except:
                 table[ord(ch)] = u'_'
-    return s.translate(table).replace(u'_', u'').replace(u' ', u'_')
+    return s.translate(table).replace(u'_', u'')
 
 
 def get_robot_variables():
