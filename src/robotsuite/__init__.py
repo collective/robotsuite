@@ -1,20 +1,19 @@
 # -*- coding: utf-8 -*-
-"""Python unittest test suite for Robot Framework"""
-
-import unittest2 as unittest
-
-import os
-import re
-import string
+"""Python unittest wrapper for Robot Framework
+"""
+import StringIO
 import doctest
 import logging
-import StringIO
+import os
+import re
+import shutil
+import string
 import unicodedata
 
-import shutil
+import robot
+import unittest2 as unittest
 from lxml import etree
 
-import robot
 
 last_status = None
 last_message = None
@@ -22,9 +21,9 @@ last_message = None
 is_first_report = True  # flag used to reset the report after the first test
 
 
-# NOTE: To be able to filter Robot Framework test cases, we monkeypatch
-# robot.run.TestSuite (imported from robot.running.model.TestSuite)
-# to just pass the first datasources as the test suite).
+# NOTE: To be able to filter test cases from Robot Framework test suites, we
+# monkeypatch robot.run.TestSuite (imported from robot.running.model.TestSuite)
+# to just pass the first value of datasources parameter as the test suite).
 
 def TestSuite(datasources, settings):
     import robot.running.model
@@ -37,8 +36,10 @@ robot.run.func_globals['TestSuite'] = TestSuite
 
 
 def normalize(s):
-    """Normalizes non-ascii characters to their closest ascii counterparts
-    and replaces spaces with underscores"""
+    """Normalize non-ascii characters to their closest ascii counterparts
+    and replaces spaces with underscores
+
+    """
     whitelist = (' -' + string.ascii_letters + string.digits)
 
     if type(s) == str:
@@ -59,9 +60,10 @@ def normalize(s):
 
 
 def get_robot_variables():
-    """Returns list of Robot Framework -compatible cli-variables parsed
-    from ROBOT_-prefixed environment variables"""
+    """Return list of Robot Framework -compatible cli-variables parsed
+    from ROBOT_-prefixed environment variable
 
+    """
     prefix = 'ROBOT_'
     variables = []
     for key in os.environ:
@@ -71,10 +73,11 @@ def get_robot_variables():
 
 
 def merge(a, b):
-    """Merges two unicode Robot Framework raports so that report 'b' is merged
+    """Merge two unicode Robot Framework raports so that report 'b' is merged
     into report 'a'. This merge may not be complete and may be is lossy. Still,
-    note that the original single test reports will remain untouched."""
+    note that the original single test reports will remain untouched.
 
+    """
     # Iterate throught the currently meged node set
     for child in b.iterchildren():
 
@@ -175,8 +178,10 @@ def merge(a, b):
 
 
 class RobotListener(object):
-    """Robot Framework test runner test listener"""
+    """Robot Framework test runner test listener for registering the
+    last known test result into a global variable
 
+    """
     def end_test(self, status, message):
         global last_status
         global last_message
@@ -185,8 +190,8 @@ class RobotListener(object):
 
 
 class RobotTestCase(unittest.TestCase):
-    """Robot Framework single test suite"""
-
+    """Robot Framework test suite for running a single test case
+    """
     def __init__(self, filename, module_relative=True, package=None,
                  source=None, name=None, tags=None, variables=[],
                  outputdir=None, setUp=None, tearDown=None, **kw):
@@ -305,13 +310,13 @@ class RobotTestCase(unittest.TestCase):
         robot.rebot('robot_output.xml', stdout=stdout, output='NONE',
                     log='robot_log.html', report='robot_report.html')
 
-        # Saise AssertionError when the test has failed
+        # Raise AssertionError when the test has failed
         assert last_status == 'PASS', last_message
 
 
 def RobotTestSuite(*paths, **kw):
-    """Build up a test suite similarly to doctest.DocFileSuite"""
-
+    """Build up a test suite similarly to doctest.DocFileSuite
+    """
     suite = unittest.TestSuite()
     if kw.get('module_relative', True):
         kw['package'] = doctest._normalize_module(kw.get('package'))
