@@ -259,7 +259,7 @@ class RobotTestCase(unittest.TestCase):
 
         # Dump stdout on test failure or error
         if last_status != 'PASS':
-            print stdout.read()
+            print('\n%s' % stdout.read())
 
         # XXX: Up to this point, everything was easy. Unfortunately, now we
         # must merge all the separate test reports into a one big summary and
