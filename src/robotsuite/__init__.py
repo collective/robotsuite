@@ -35,7 +35,7 @@ def TestSuite(datasources, settings):
 robot.run.func_globals['TestSuite'] = TestSuite
 
 
-def normalize(s):
+def normalize(s, replace_spaces=True):
     """Normalize non-ascii characters to their closest ascii counterparts
     """
     whitelist = (' -' + string.ascii_letters + string.digits)
@@ -54,7 +54,11 @@ def normalize(s):
                     table[ord(ch)] = u'_'
             except:
                 table[ord(ch)] = u'_'
-    return s.translate(table).replace(u'_', u'')
+
+    if replace_spaces:
+        return s.translate(table).replace(u'_', u'').replace(' ', '_')
+    else:
+        return s.translate(table).replace(u'_', u'')
 
 
 def get_robot_variables():
@@ -217,7 +221,8 @@ class RobotTestCase(unittest.TestCase):
         # Set outputdir for log, report and screenshots
         self._robot_outputdir = outputdir
         # Set test method name from the test name
-        self._testMethodName = normalize(name or 'runTest')
+        self._testMethodName = normalize(name or 'runTest',
+                                         replace_spaces=False)
         # Set tags to be included in test's __str__
         self._tags = tags
         # Set variables to pass for pybot
