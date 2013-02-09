@@ -20,7 +20,8 @@ Log in
     Page should contain element  __ac_name
     Input text  __ac_name  ${TEST_USER_NAME}
     Input text  __ac_password  ${TEST_USER_PASSWORD}
-    Click Button  Log in
+    Click button  Log in
+    Page should not contain button  Log in
     Page should contain element  css=#user-name
 
 *** Keywords ***
