@@ -1,17 +1,15 @@
 Changelog
 =========
 
-1.0.2 (unreleased)
+1.0.2 (2013-02-09)
 ------------------
 
-- Nothing changed yet.
-
+- Fix to replace spaces in test report folder names
 
 1.0.1 (2013-02-09)
 ------------------
 
 - Add newline before stdout dump on failing tests
-  [Asko Soukka]
 
 1.0.0 (2013-02-08)
 ------------------
