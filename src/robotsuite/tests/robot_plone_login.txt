@@ -1,15 +1,15 @@
 *** Settings ***
 
+Library  OperatingSystem
 Library  Selenium2Library  timeout=10  implicit_wait=0.5
-Library  robotsuite.tests.test_plone.Keywords
+Library  robotsuite.tests.test_robot.Keywords
 
 Suite Setup  Start browser
 Suite Teardown  Close all browsers
 
-
 *** Variables ***
 
-${HTTP_PORT} =  8080
+${HTTP_PORT} =
 
 *** Test Cases ***
 
@@ -27,4 +27,6 @@ Log in
 *** Keywords ***
 
 Start browser
-    Open browser  http://localhost:55001/plone/
+    ${HTTP_PORT} =  Get environment variable  ZSERVER_PORT  55001
+    Set suite variable  ${HTTP_PORT}  ${HTTP_PORT}
+    Open browser  http://localhost:${HTTP_PORT}/plone/

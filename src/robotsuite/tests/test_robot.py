@@ -1,26 +1,22 @@
 # -*- coding: utf-8 -*-
-"""Testing Plone using Robot Framework"""
-
 import unittest
 
-from plone.testing import layered
-
-from plone.app.testing import PLONE_ZSERVER
-
 import robotsuite
+from plone.app.testing import PLONE_ZSERVER
+from plone.testing import layered
 
 
 def test_suite():
     suite = unittest.TestSuite()
     suite.addTests([
-        layered(robotsuite.RobotTestSuite("test_plone_login.txt"),
+        layered(robotsuite.RobotTestSuite("robot_plone_login.txt"),
                 layer=PLONE_ZSERVER),
     ])
     return suite
 
 
 class Keywords(object):
-    """Robot Framework keyword library"""
+    """An example Robot Framework python keyword library"""
 
     def get_test_user_name(self):
         import plone.app.testing
