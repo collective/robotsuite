@@ -4,8 +4,7 @@ Changelog
 1.0.3 (2013-02-18)
 ------------------
 
-- Nothing changed yet.
-
+- Fix the example test to read ZSERVER_PORT -environment variable properly
 
 1.0.2 (2013-02-09)
 ------------------
