@@ -103,7 +103,13 @@ def merge(a, b):
                     node.set('id', re.sub('^%s' % child_id, suite_id,
                                           node.get('id')))
                 a.append(child)
-
+            # Gather separate top-level suites into a single top-level suite
+            if a.tag == 'robot' and a.xpath('suite[@source]'):
+                for mergeroot in a.xpath('suite[not(@source)]'):
+                    mergeable = etree.Element('robot')
+                    for suite in a.xpath('suite[@source]'):
+                        mergeable.append(suite)
+                    merge(mergeroot, mergeable)
         # Merge keywords
         elif child.tag == 'kw':
             name = child.get('name')
@@ -297,6 +303,24 @@ class RobotTestCase(unittest.TestCase):
             # Try to merge the new 'output.xml' into the previous one
             try:
                 current_output = etree.fromstring(data.encode('utf-8'))
+                # Merge multiple test suites into the same (pseudo) root
+                # to make the result work with rebot
+                try:
+                    merged_root = merged_output.xpath('suite[not(@source)]')
+                    merged_source = merged_output.find('suite').get('source')
+                    current_source = current_output.find('suite').get('source')
+                    if not merged_root and merged_source != current_source:
+                        temp = etree.fromstring(
+                            '<robot>'
+                            '<suite id="s1" name="Robot"/>'
+                            '<statistics><total/><tag/><suite/></statistics>'
+                            '<errors/>'
+                            '</robot>'
+                        )
+                        merge(temp, merged_output)
+                        merged_output = temp
+                except AttributeError:
+                    pass
                 merge(merged_output, current_output)
                 data = etree.tostring(merged_output)
             # Catch any exception here and print it (to help fixing it)

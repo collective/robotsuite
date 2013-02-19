@@ -1,6 +1,12 @@
 Changelog
 =========
 
+1.0.4 (unreleased)
+------------------
+
+- Fix issue in merging of test reports from tests form two or more separate
+  test suites
+
 1.0.3 (2013-02-18)
 ------------------
 
