@@ -1,11 +1,12 @@
 Changelog
 =========
 
-1.0.5 (unreleased)
+1.1.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
-
+- Change of behavior to not remove existing `robot_output.xml`, but always
+  just merge new test data into it. `robot_output.xml` can be reseted by
+  deleting it manually between tests.
 
 1.0.4 (2013-02-19)
 ------------------
