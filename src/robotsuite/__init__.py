@@ -18,8 +18,6 @@ from lxml import etree
 last_status = None
 last_message = None
 
-is_first_report = True  # flag used to reset the report after the first test
-
 
 # NOTE: To be able to filter test cases from Robot Framework test suites, we
 # monkeypatch robot.run.TestSuite (imported from robot.running.model.TestSuite)
@@ -294,13 +292,10 @@ class RobotTestCase(unittest.TestCase):
         data = re.sub('(href|src)="(selenium-screenshot[^"]+)"',
                       '\\1="%s\\2"' % prefix, data)
 
-        global is_first_report
-        if is_first_report:
-            is_first_report = False
-        else:
+        # Try to merge the new 'output.xml' into the previous one
+        if os.path.exists('robot_output.xml'):
             with open('robot_output.xml') as handle:
                 merged_output = etree.fromstring(handle.read())
-            # Try to merge the new 'output.xml' into the previous one
             try:
                 current_output = etree.fromstring(data.encode('utf-8'))
                 # Merge multiple test suites into the same (pseudo) root
