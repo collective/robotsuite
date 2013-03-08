@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.2.1 (unreleased)
+1.2.1 (2013-03-08)
 ------------------
 
 - Revert setting the default zope.testrunner level and support setting it via
