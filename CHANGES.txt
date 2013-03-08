@@ -1,11 +1,13 @@
 Changelog
 =========
 
-1.1.1 (unreleased)
+1.2.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
-
+- Override test suite __module__ test case id() to support
+  collective.xmltestreport
+- Add support for zope.testrunner test suite levels (with default value of 2 to
+  allow easily to run all but robot tests with zope.testrunner
 
 1.1.0 (2013-02-20)
 ------------------
