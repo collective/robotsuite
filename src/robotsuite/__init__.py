@@ -239,11 +239,18 @@ class RobotTestCase(unittest.TestCase):
         if tearDown:
             setattr(self, 'tearDown', tearDown)
 
+        # Set module name from the package to please some report formatters
+        self.__module__ = package.__name__
+
     def __str__(self):
         tags = ''
         for tag in (self._tags or []):
             tags += ' #' + tag
         return '%s (%s)%s' % (self._testMethodName, self._relpath, tags)
+
+    def id(self):
+        return '%s.%s.%s' % (
+            self.__module__, self.__class__.__name__, self._testMethodName)
 
     def runTest(self):
         # Create StringIO to capture stdout into
