@@ -4,8 +4,8 @@ Changelog
 1.2.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
-
+- Revert setting the default zope.testrunner level and support setting it via
+  environment variable ROBOTSUITE_LEVEL (e.g. ROBOTSUITE_LEVEL=2).
 
 1.2.0 (2013-03-08)
 ------------------
@@ -18,8 +18,8 @@ Changelog
 1.1.0 (2013-02-20)
 ------------------
 
-- Change of behavior to not remove existing `robot_output.xml`, but always
-  just merge new test data into it. `robot_output.xml` can be reseted by
+- Change of behavior to not remove existing ``robot_output.xml``, but always
+  just merge new test data into it. ``robot_output.xml`` can be reseted by
   deleting it manually between tests.
 
 1.0.4 (2013-02-19)
