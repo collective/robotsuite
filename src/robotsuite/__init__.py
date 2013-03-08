@@ -340,6 +340,7 @@ def RobotTestSuite(*paths, **kw):
     """Build up a test suite similarly to doctest.DocFileSuite
     """
     suite = unittest.TestSuite()
+    suite.level = int(os.environ.get('ROBOT_LEVEL', 2))
     if kw.get('module_relative', True):
         kw['package'] = doctest._normalize_module(kw.get('package'))
 
