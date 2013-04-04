@@ -11,6 +11,7 @@ import string
 import unicodedata
 
 import robot
+from robot.common.model import _Critical
 import unittest2 as unittest
 from lxml import etree
 
@@ -348,8 +349,12 @@ class RobotTestCase(unittest.TestCase):
                     log='robot_log.html', report='robot_report.html',
                     critical=self._critical, noncritical=self._noncritical)
 
-        # Raise AssertionError when the test has failed
-        assert last_status == 'PASS', last_message
+        # If the test is critical, raise AssertionError when it has failed
+        is_critical = _Critical(tags=self._critical,
+                                nons=self._noncritical
+                                ).are_critical(self._tags or [])
+        if is_critical:
+            assert last_status == 'PASS', last_message
 
 
 def RobotTestSuite(*paths, **kw):
