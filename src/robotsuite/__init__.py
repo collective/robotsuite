@@ -200,7 +200,8 @@ class RobotTestCase(unittest.TestCase):
     """
     def __init__(self, filename, module_relative=True, package=None,
                  source=None, name=None, tags=None, variables=[],
-                 outputdir=None, setUp=None, tearDown=None, **kw):
+                 outputdir=None, setUp=None, tearDown=None, 
+                 critical=None, noncritical=None, **kw):
         unittest.TestCase.__init__(self)
 
         filename = doctest._module_relative_path(package, filename)
@@ -232,6 +233,10 @@ class RobotTestCase(unittest.TestCase):
         # Set variables to pass for pybot
         self._variables = variables
         setattr(self, self._testMethodName, self.runTest)
+
+        # Set tags that should be considered (non)critical
+        self._critical = critical
+        self._noncritical = noncritical
 
         # Set test fixture setup and teardown methods when given
         if setUp:
@@ -270,7 +275,10 @@ class RobotTestCase(unittest.TestCase):
         robot.run(self._robot_suite, variable=self._variables,
                   listener=('robotsuite.RobotListener',),
                   outputdir=self._robot_outputdir,
-                  stdout=stdout)
+                  stdout=stdout,
+                  critical=self._critical,
+                  noncritical=self._noncritical,
+                  )
         stdout.seek(0)
 
         # Dump stdout on test failure or error
@@ -337,7 +345,8 @@ class RobotTestCase(unittest.TestCase):
         with open('robot_output.xml', 'w') as handle:
             handle.write(data.encode('utf-8'))
         robot.rebot('robot_output.xml', stdout=stdout, output='NONE',
-                    log='robot_log.html', report='robot_report.html')
+                    log='robot_log.html', report='robot_report.html',
+                    critical=self._critical, noncritical=self._noncritical)
 
         # Raise AssertionError when the test has failed
         assert last_status == 'PASS', last_message
