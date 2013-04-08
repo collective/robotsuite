@@ -290,13 +290,13 @@ class RobotTestCase(unittest.TestCase):
         # Copy screenshots in to the current working directory
         dirname = os.path.dirname(current_datasource)
         prefix = 'robot_%s_' % dirname.replace(os.path.sep, '_')
-        screenshots = re.findall('src="(selenium-screenshot[^"]+)"', data)
+        screenshots = re.findall('src="([^"]+\.png)"', data)
         for filename in screenshots:
             path = os.path.join(dirname, filename)
             if os.path.isfile(path):
                 shutil.copyfile(path, "%s%s" % (prefix, filename))
         # Fix 'a' and 'img' tags to target the copied versions
-        data = re.sub('(href|src)="(selenium-screenshot[^"]+)"',
+        data = re.sub('(href|src)="([^"]+\.png)"',
                       '\\1="%s\\2"' % prefix, data)
 
         # Try to merge the new 'output.xml' into the previous one
