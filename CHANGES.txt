@@ -1,11 +1,11 @@
 Changelog
 =========
 
-1.2.2 (unreleased)
+1.2.2 (2013-04-08)
 ------------------
 
-- Nothing changed yet.
-
+- Fix to copy all screenshots (not only selenium-screenshot-*.png) when mergin
+  test reports
 
 1.2.1 (2013-03-08)
 ------------------
