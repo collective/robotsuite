@@ -50,4 +50,4 @@ If this works for you, please contribute at:
 http://github.com/collective/robotsuite/
 
 .. image:: https://secure.travis-ci.org/collective/robotsuite.png
-    :target: http://travis-ci.org/collective/robotsuite
+   :target: http://travis-ci.org/collective/robotsuite
