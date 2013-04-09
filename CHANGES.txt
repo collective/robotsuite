@@ -1,6 +1,13 @@
 Changelog
 =========
 
+1.3.0 (2013-04-09)
+------------------
+
+- Allow passing arguments critical/noncritical
+  to only raise an AssertionError if the test is critical
+  [reinhardt]
+
 1.2.2 (2013-04-08)
 ------------------
 
