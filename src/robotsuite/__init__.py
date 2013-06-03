@@ -11,7 +11,15 @@ import string
 import unicodedata
 
 import robot
-from robot.common.model import _Critical
+
+from robot import parsing as robot_parsing
+from robot import model as robot_model
+from robot.output import LOGGER
+from robot.rebot import rebot as robot_rebot
+from robot.conf import RobotSettings
+from robot.reporting import ResultWriter
+from robot.running import TestSuiteBuilder
+
 import unittest2 as unittest
 from lxml import etree
 
@@ -20,20 +28,7 @@ last_status = None
 last_message = None
 
 
-# NOTE: To be able to filter test cases from Robot Framework test suites, we
-# monkeypatch robot.run.TestSuite (imported from robot.running.model.TestSuite)
-# to just pass the first value of datasources parameter as the test suite).
-
-def TestSuite(datasources, settings):
-    import robot.running.model
-    suite = robot.running.model.RunnableTestSuite(datasources[0])
-    suite.set_options(settings)
-    robot.running.model._check_suite_contains_tests(
-        suite, settings['RunEmptySuite'])
-    return suite
-robot.run.func_globals['TestSuite'] = TestSuite
-
-
+# noinspection PyBroadException
 def normalize(s, replace_spaces=True):
     """Normalize non-ascii characters to their closest ascii counterparts
     """
@@ -74,19 +69,19 @@ def get_robot_variables():
 
 
 def merge(a, b):
-    """Merge two unicode Robot Framework raports so that report 'b' is merged
+    """Merge two unicode Robot Framework reports so that report 'b' is merged
     into report 'a'. This merge may not be complete and may be is lossy. Still,
     note that the original single test reports will remain untouched.
 
     """
-    # Iterate throught the currently meged node set
+    # Iterate throughout the currently merged node set
     for child in b.iterchildren():
 
         # Merge suites
         if child.tag == 'suite':
             source = child.get('source')
             suites = a.xpath('suite[@source="%s"]' % source)
-            # When mathing suite is found, merge
+            # When matching suite is found, merge
             if suites:
                 merge(suites[0], child)
             # When no matching suite is found, append and fix ids
@@ -102,13 +97,13 @@ def merge(a, b):
                     node.set('id', re.sub('^%s' % child_id, suite_id,
                                           node.get('id')))
                 a.append(child)
-            # Gather separate top-level suites into a single top-level suite
+                # Gather separate top-level suites into a single top-level suite
             if a.tag == 'robot' and a.xpath('suite[@source]'):
-                for mergeroot in a.xpath('suite[not(@source)]'):
+                for merge_root in a.xpath('suite[not(@source)]'):
                     mergeable = etree.Element('robot')
                     for suite in a.xpath('suite[@source]'):
                         mergeable.append(suite)
-                    merge(mergeroot, mergeable)
+                    merge(merge_root, mergeable)
         # Merge keywords
         elif child.tag == 'kw':
             name = child.get('name')
@@ -189,6 +184,7 @@ class RobotListener(object):
     last known test result into a global variable
 
     """
+
     def end_test(self, status, message):
         global last_status
         global last_message
@@ -199,28 +195,31 @@ class RobotListener(object):
 class RobotTestCase(unittest.TestCase):
     """Robot Framework test suite for running a single test case
     """
+    # noinspection PyUnusedLocal
     def __init__(self, filename, module_relative=True, package=None,
-                 source=None, name=None, tags=None, variables=[],
-                 outputdir=None, setUp=None, tearDown=None, 
-                 critical=None, noncritical=None, **kw):
+                 source=None, name=None, tags=None, variables=None,
+                 outputdir=None, setUp=None, tearDown=None, critical=None,
+                 noncritical=None, **kw):
         unittest.TestCase.__init__(self)
 
         filename = doctest._module_relative_path(package, filename)
-        suite = robot.parsing.TestData(source=filename)
+        suite = robot_parsing.TestData(source=filename)
         suite_parent = os.path.dirname(filename)
+        self._relative_path = None
 
-        def recurse(child_suite, test_case, suite_parent):
+        def recurs(child_suite, test_case, suite_parent):
             if source and child_suite.source != source:
                 child_suite.testcase_table.tests = []
             elif name:
                 tests = child_suite.testcase_table.tests
-                child_suite.testcase_table.tests =\
+                child_suite.testcase_table.tests = \
                     filter(lambda x: x.name == name, tests)
-                test_case._relpath =\
+                test_case._relative_path = \
                     os.path.relpath(child_suite.source, suite_parent)
             for grandchild in getattr(child_suite, 'children', []):
-                recurse(grandchild, test_case, suite_parent)
-        recurse(suite, self, suite_parent)
+                recurs(grandchild, test_case, suite_parent)
+
+        recurs(suite, self, suite_parent)
 
         # Set suite to be run bu runTest
         self._robot_suite = suite
@@ -229,15 +228,15 @@ class RobotTestCase(unittest.TestCase):
         # Set test method name from the test name
         self._testMethodName = normalize(name or 'runTest',
                                          replace_spaces=False)
-        # Set tags to be included in test's __str__
+        # Set tags to be included in tests' __str__
         self._tags = tags
         # Set variables to pass for pybot
-        self._variables = variables
+        self._variables = variables or []
         setattr(self, self._testMethodName, self.runTest)
 
         # Set tags that should be considered (non)critical
-        self._critical = critical
-        self._noncritical = noncritical
+        self._critical = critical or []
+        self._noncritical = noncritical or []
 
         # Set test fixture setup and teardown methods when given
         if setUp:
@@ -245,18 +244,40 @@ class RobotTestCase(unittest.TestCase):
         if tearDown:
             setattr(self, 'tearDown', tearDown)
 
-        # Set module name from the package to please some report formatters
+        # Set module name from the package to please some report formatter
         self.__module__ = package.__name__
+        self._relative_path = None
 
     def __str__(self):
         tags = ''
         for tag in (self._tags or []):
             tags += ' #' + tag
-        return '%s (%s)%s' % (self._testMethodName, self._relpath, tags)
+        return '%s (%s)%s' % (self._testMethodName, self._relative_path, tags)
 
     def id(self):
         return '%s.%s.%s' % (
             self.__module__, self.__class__.__name__, self._testMethodName)
+
+    def _runTest(self, parsed, **options):
+        settings = RobotSettings(options)
+        LOGGER.register_console_logger(width=settings['MonitorWidth'],
+                                       colors=settings['MonitorColors'],
+                                       markers=settings['MonitorMarkers'],
+                                       stdout=settings['StdOut'],
+                                       stderr=settings['StdErr'])
+        LOGGER.info('Settings:\n%s' % unicode(settings))
+        suite = TestSuiteBuilder(settings['SuiteNames'],
+                                 settings['WarnOnSkipped'],
+                                 settings['RunEmptySuite'])._build_suite(parsed)
+        suite.configure(**settings.suite_config)
+        result = suite.run(settings)
+        LOGGER.info("Tests execution ended. Statistics:\n%s"
+                    % result.suite.statistics.message)
+        rc = result.return_code
+        if settings.log or settings.report or settings.xunit:
+            writer = ResultWriter(settings.output if settings.log else result)
+            writer.write_results(settings.get_rebot_settings())
+        return rc
 
     def runTest(self):
         # Create StringIO to capture stdout into
@@ -265,21 +286,22 @@ class RobotTestCase(unittest.TestCase):
         # Inject logged errors into our captured stdout
         logger = logging.getLogger()
         handler = logging.StreamHandler(stdout)
-        formatter = logging.Formatter("\n"
-                                      "%(asctime)s - %(name)s - "
-                                      "%(levelname)s - %(message)s")
+        formatter = logging.Formatter(
+            '\n%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         handler.setFormatter(formatter)
         handler.setLevel(logging.ERROR)
         logger.addHandler(handler)
 
         # Run robot with capturing stdout
-        robot.run(self._robot_suite, variable=self._variables,
-                  listener=('robotsuite.RobotListener',),
-                  outputdir=self._robot_outputdir,
-                  stdout=stdout,
-                  critical=self._critical,
-                  noncritical=self._noncritical,
-                  )
+        options = {
+            'variable': self._variables,
+            'listener': ('robotsuite.RobotListener',),
+            'outputdir': self._robot_outputdir,
+            'stdout': stdout,
+            'critical': self._critical,
+            'noncritical': self._noncritical,
+        }
+        self._runTest(self._robot_suite, **options)
         stdout.seek(0)
 
         # Dump stdout on test failure or error
@@ -292,19 +314,19 @@ class RobotTestCase(unittest.TestCase):
         # (to make it easy to publish them on Jenkins).
 
         # Get full relative path for the 'output.xml' and read it into 'data'
-        current_datasource = os.path.join(self._robot_outputdir, 'output.xml')
-        with open(current_datasource) as handle:
+        current_data_source = os.path.join(self._robot_outputdir, 'output.xml')
+        with open(current_data_source) as handle:
             data = unicode(handle.read(), 'utf-8')
 
         # Copy screenshots in to the current working directory
-        dirname = os.path.dirname(current_datasource)
+        dirname = os.path.dirname(current_data_source)
         prefix = 'robot_%s_' % dirname.replace(os.path.sep, '_')
         screenshots = re.findall('src="([^"]+\.png)"', data)
         for filename in screenshots:
             path = os.path.join(dirname, filename)
             if os.path.isfile(path):
                 shutil.copyfile(path, "%s%s" % (prefix, filename))
-        # Fix 'a' and 'img' tags to target the copied versions
+            # Fix 'a' and 'img' tags to target the copied versions
         data = re.sub('(href|src)="([^"]+\.png)"',
                       '\\1="%s\\2"' % prefix, data)
 
@@ -337,22 +359,28 @@ class RobotTestCase(unittest.TestCase):
             # Catch any exception here and print it (to help fixing it)
             except Exception, e:
                 import traceback
+
                 stacktrace = StringIO.StringIO()
                 traceback.print_exc(None, stacktrace)
-                print "ROBOTSUITE ERROR when merging test reports: %s\n%s" %\
-                    (str(e), stacktrace.getvalue())
+                print "ROBOTSUITE ERROR when merging test reports: %s\n%s" % \
+                      (str(e), stacktrace.getvalue())
 
         # Save the merged 'output.xml' and generate merged reports
         with open('robot_output.xml', 'w') as handle:
             handle.write(data.encode('utf-8'))
-        robot.rebot('robot_output.xml', stdout=stdout, output='NONE',
+        robot_rebot('robot_output.xml', stdout=stdout, output='NONE',
                     log='robot_log.html', report='robot_report.html',
                     critical=self._critical, noncritical=self._noncritical)
 
         # If the test is critical, raise AssertionError when it has failed
-        is_critical = _Critical(tags=self._critical,
-                                nons=self._noncritical
-                                ).are_critical(self._tags or [])
+        criticality = robot_model.Criticality(
+            critical_tags=self._critical, nonrcritical_tags=self._noncritical)
+        is_critical = (
+            criticality.critical_tags
+            and criticality.critical_tags.match(self._tags)
+        ) or (
+            not criticality.non_critical_tags.match(self._tags)
+        )
         if is_critical:
             assert last_status == 'PASS', last_message
 
@@ -373,13 +401,13 @@ def RobotTestSuite(*paths, **kw):
 
     for path in paths:
         filename = doctest._module_relative_path(kw['package'], path)
-        robot_suite = robot.parsing.TestData(source=filename)
+        robot_suite = robot_parsing.TestData(source=filename)
 
         # Split the robot suite into separate test cases
 
         outputdir = []
 
-        def recurse(child_suite):
+        def recurs(child_suite):
             suite_base = os.path.basename(child_suite.source)
             suite_dir = os.path.splitext(suite_base)[0]
             outputdir.append(suite_dir)
@@ -394,8 +422,9 @@ def RobotTestSuite(*paths, **kw):
                                             **kw))
                 outputdir.pop()
             for grandchild in getattr(child_suite, 'children', []):
-                recurse(grandchild)
+                recurs(grandchild)
             outputdir.pop()
-        recurse(robot_suite)
+
+        recurs(robot_suite)
 
     return suite
