@@ -374,7 +374,7 @@ class RobotTestCase(unittest.TestCase):
 
         # If the test is critical, raise AssertionError when it has failed
         criticality = robot_model.Criticality(
-            critical_tags=self._critical, nonrcritical_tags=self._noncritical)
+            critical_tags=self._critical, non_critical_tags=self._noncritical)
         is_critical = (
             criticality.critical_tags
             and criticality.critical_tags.match(self._tags)
