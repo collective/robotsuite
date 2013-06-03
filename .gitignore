@@ -1,14 +1,12 @@
 syntax: glob
-
-bin
-develop-eggs
-buildout-cache
-parts
-dist
-
-*.pyc
-*.mo
 *.egg-info
-
+*.mo
+*.pyc
+.idea
 .installed.cfg
 .ropeproject
+bin
+buildout-cache
+develop-eggs
+dist
+parts
