@@ -10,8 +10,6 @@ import shutil
 import string
 import unicodedata
 
-import robot
-
 from robot import parsing as robot_parsing
 from robot import model as robot_model
 from robot.output import LOGGER
@@ -97,7 +95,8 @@ def merge(a, b):
                     node.set('id', re.sub('^%s' % child_id, suite_id,
                                           node.get('id')))
                 a.append(child)
-                # Gather separate top-level suites into a single top-level suite
+                # Gather separate top-level suites into a single top-level
+                # suite
             if a.tag == 'robot' and a.xpath('suite[@source]'):
                 for merge_root in a.xpath('suite[not(@source)]'):
                     mergeable = etree.Element('robot')
@@ -266,9 +265,10 @@ class RobotTestCase(unittest.TestCase):
                                        stdout=settings['StdOut'],
                                        stderr=settings['StdErr'])
         LOGGER.info('Settings:\n%s' % unicode(settings))
-        suite = TestSuiteBuilder(settings['SuiteNames'],
-                                 settings['WarnOnSkipped'],
-                                 settings['RunEmptySuite'])._build_suite(parsed)
+        suite = TestSuiteBuilder(
+            settings['SuiteNames'],
+            settings['WarnOnSkipped'],
+            settings['RunEmptySuite'])._build_suite(parsed)
         suite.configure(**settings.suite_config)
         result = suite.run(settings)
         LOGGER.info("Tests execution ended. Statistics:\n%s"
@@ -325,8 +325,11 @@ class RobotTestCase(unittest.TestCase):
         for filename in screenshots:
             path = os.path.join(dirname, filename)
             if os.path.isfile(path):
-                shutil.copyfile(path, "%s%s" % (prefix, filename))
-            # Fix 'a' and 'img' tags to target the copied versions
+                copy_filename = filename\
+                    .replace(os.path.sep, '')\
+                    .replace(os.pardir, '')
+                shutil.copyfile(path, "%s%s" % (prefix, copy_filename))
+        # Fix 'a' and 'img' tags to target the copied versions
         data = re.sub('(href|src)="([^"]+\.png)"',
                       '\\1="%s\\2"' % prefix, data)
 
