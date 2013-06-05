@@ -29,7 +29,7 @@ ${DESIRED_CAPABILITIES}
 
 *** Test Cases ***
 
-Test Plone login login
+Test Plone login
     [Tags]  login
     Log in  ${TEST_USER_NAME}  ${TEST_USER_PASSWORD}
     Page should contain element  css=#user-name
