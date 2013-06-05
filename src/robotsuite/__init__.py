@@ -303,7 +303,10 @@ class RobotTestCase(unittest.TestCase):
         for filename in screenshots:
             path = os.path.join(dirname, filename)
             if os.path.isfile(path):
-                shutil.copyfile(path, "%s%s" % (prefix, filename))
+                copy_filename = filename\
+                    .replace(os.path.sep, '')\
+                    .replace(os.pardir, '')
+                shutil.copyfile(path, "%s%s" % (prefix, copy_filename))
         # Fix 'a' and 'img' tags to target the copied versions
         data = re.sub('(href|src)="([^"]+\.png)"',
                       '\\1="%s\\2"' % prefix, data)
