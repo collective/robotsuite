@@ -24,7 +24,7 @@ setup(
     install_requires=[
         "setuptools",
         "unittest2",
-        "robotframework>=2.7.1,<2.8rc1",
+        "robotframework>=2.8rc1",
         "lxml",
     ],
     extras_require={"test": [
