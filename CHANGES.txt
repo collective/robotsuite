@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.4.0 (unreleased)
+1.4.0 (2013-06-19)
 ------------------
 
 - Supports only roboframework >= 2.8.
