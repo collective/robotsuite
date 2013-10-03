@@ -51,3 +51,32 @@ http://github.com/collective/robotsuite/
 
 .. image:: https://secure.travis-ci.org/collective/robotsuite.png
    :target: http://travis-ci.org/collective/robotsuite
+
+
+Setting robot variables from environment variables
+--------------------------------------------------
+
+Robot Framework supports overriding test variables from command-line, which
+is not-available when running tests as robotsuite-wrapped with other test
+runners. That's why robotsuite supports settings variables as environment
+variables so that every ``ROBOT_``-prefixed environment variable will be
+mapped into corresponding test variable without the ``ROBOT_``-prefix.
+
+
+Declaring tests non-critical by given set of tags
+-------------------------------------------------
+
+Robot Framework supports declaring tests with given tags as *non-critical*
+to prevent their failing to fail the complete build on CI. This is supported
+as keyword argument for *RobotTestSuite* as follows:
+
+.. code:: python
+
+   def test_suite():
+       suite = unittest.TestSuite()
+       suite.addTests([
+           layered(RobotTestSuite('mysuite.txt',
+                                  noncritical=['non-critical-tag']),
+                   layer=ACCEPTANCE_TESTING),
+       ])
+       return suite
