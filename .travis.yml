@@ -2,6 +2,7 @@ language: python
 python: "2.7"
 install:
   - virtualenv buildout
+  - buildout/bin/pip install -U setuptools
   - mkdir -p buildout-cache/downloads
   - buildout/bin/python bootstrap.py -c travis.cfg
   - bin/buildout -N -t 3 -c travis.cfg
