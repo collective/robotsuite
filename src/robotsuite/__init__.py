@@ -253,7 +253,6 @@ class RobotTestCase(unittest.TestCase):
 
         # Set module name from the package to please some report formatter
         self.__module__ = package.__name__
-        self._relative_path = None
 
     def __str__(self):
         tags = ''
