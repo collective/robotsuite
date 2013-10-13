@@ -221,7 +221,14 @@ class RobotTestCase(unittest.TestCase):
 
         recurs(suite, self, suite_parent)
 
-        # Set suite to be run bu runTest
+        # Mimic DocTestCase to support plone.testing's way of settings test
+        # layer as doctest global:
+        class LayerPlaceHolder(object):
+            globs = None
+        setattr(self, '_dt_test', LayerPlaceHolder())
+        setattr(self._dt_test, 'globs', {})
+
+        # Set suite to be run by runTest
         self._robot_suite = suite
         # Set outputdir for log, report and screenshots
         self._robot_outputdir = outputdir
