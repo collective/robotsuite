@@ -1,11 +1,18 @@
 Changelog
 =========
 
-1.4.1 (unreleased)
+1.4.1 (2013-10-13)
 ------------------
 
-- Nothing changed yet.
-
+- Fix regression in 1.4.0, which dropped relative path names from robot test
+  cases
+  [Asko Soukka]
+- Fix RobotTestCase to mimic DocTestCase enough to allow plone.testing to set
+  'layer' for it
+  [Asko Soukka]
+- Fix to set given test 'setUp' and 'tearDown' methods properly as
+  instancemethods (will break existing methods not accepting 'self' parameters)
+  [Asko Soukka]
 
 1.4.0 (2013-06-19)
 ------------------
