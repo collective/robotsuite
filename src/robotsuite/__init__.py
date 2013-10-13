@@ -8,6 +8,7 @@ import os
 import re
 import shutil
 import string
+import types
 import unicodedata
 
 from robot import parsing as robot_parsing
@@ -239,9 +240,9 @@ class RobotTestCase(unittest.TestCase):
 
         # Set test fixture setup and teardown methods when given
         if setUp:
-            setattr(self, 'setUp', setUp)
+            setattr(self, 'setUp', types.MethodType(setUp, self))
         if tearDown:
-            setattr(self, 'tearDown', tearDown)
+            setattr(self, 'tearDown', types.MethodType(tearDown, self))
 
         # Set module name from the package to please some report formatter
         self.__module__ = package.__name__
