@@ -4,7 +4,9 @@ Python unittest test suite for Robot Framework
 This is an experimental package
 for wrapping Robot Framework test suites into Python unittest suites
 to make it possible to run Robot Framework tests
-as `plone.testing`_'s layered test suites::
+as `plone.testing`_'s layered test suites:
+
+.. code:: python
 
     import unittest2 as unittest
 
@@ -79,4 +81,22 @@ as keyword argument for *RobotTestSuite* as follows:
                                   noncritical=['non-critical-tag']),
                    layer=ACCEPTANCE_TESTING),
        ])
+       return suite
+
+
+Setting zope.testrunner-level
+---------------------------------
+
+`zope.testrunner`_ supports annotating test suites with levels to avoid
+slow test being run unless wanted:
+
+.. code:: python
+
+   def test_suite():
+       suite = unittest.TestSuite()
+       suite.addTests([
+           layered(RobotTestSuite('mysuite.txt'),
+                   layer=ACCEPTANCE_TESTING),
+       ])
+       suite.level = 10
        return suite
