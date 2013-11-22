@@ -12,5 +12,6 @@ def test_suite():
     suite.addTests([
         layered(robotsuite.RobotTestSuite("test_plone_login.robot"),
                 layer=PLONE_ZSERVER),
+        robotsuite.RobotTestSuite("test_setups")
     ])
     return suite
