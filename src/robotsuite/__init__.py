@@ -207,7 +207,8 @@ class RobotTestCase(unittest.TestCase):
         suite_parent = os.path.dirname(filename)
         self._relative_path = None
 
-        def recurs(child_suite, test_case, suite_parent):
+        def walk(child_suite, test_case, suite_parent):
+            found = False
             if source and child_suite.source != source:
                 child_suite.testcase_table.tests = []
             elif name:
@@ -216,10 +217,14 @@ class RobotTestCase(unittest.TestCase):
                     filter(lambda x: x.name == name, tests)
                 test_case._relative_path = \
                     os.path.relpath(child_suite.source, suite_parent)
-            for grandchild in getattr(child_suite, 'children', []):
-                recurs(grandchild, test_case, suite_parent)
+                if len(child_suite.testcase_table.tests):
+                    found = True
+            for grandchild in getattr(child_suite, 'children', [])[:]:
+                if not walk(grandchild, test_case, suite_parent):
+                    child_suite.children.remove(grandchild)
+            return found
 
-        recurs(suite, self, suite_parent)
+        walk(suite, self, suite_parent)
 
         # Mimic DocTestCase to support plone.testing's way of settings test
         # layer as doctest global:
