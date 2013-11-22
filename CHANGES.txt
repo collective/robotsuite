@@ -1,11 +1,12 @@
 Changelog
 =========
 
-1.4.2 (unreleased)
+1.4.2 (2013-11-22)
 ------------------
 
-- Nothing changed yet.
-
+- Fix issue where suite setups were run for suites without tests
+  wit robotframework >= 2.8.0
+  [Asko Soukka]
 
 1.4.1 (2013-10-13)
 ------------------
