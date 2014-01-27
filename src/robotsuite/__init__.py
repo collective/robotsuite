@@ -222,6 +222,8 @@ class RobotTestCase(unittest.TestCase):
             for grandchild in getattr(child_suite, 'children', [])[:]:
                 if not walk(grandchild, test_case, suite_parent):
                     child_suite.children.remove(grandchild)
+                else:
+                    found = True
             return found
 
         walk(suite, self, suite_parent)
