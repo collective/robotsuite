@@ -4,8 +4,8 @@ Changelog
 1.4.3 (unreleased)
 ------------------
 
-- Nothing changed yet.
-
+- Fix issue where test suites with sub-suites were not supported
+  [Asko Soukka]
 
 1.4.2 (2013-11-22)
 ------------------
