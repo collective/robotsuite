@@ -22,6 +22,7 @@ from robot.running import TestSuiteBuilder
 import unittest2 as unittest
 from lxml import etree
 
+append_output_xml = bool(os.environ.get('ROBOTSUITE_APPEND_OUTPUT_XML'))
 
 last_status = None
 last_message = None
@@ -347,8 +348,13 @@ class RobotTestCase(unittest.TestCase):
         data = re.sub('(href|src)="([^"]+\.png)"',
                       '\\1="%s\\2"' % prefix, data)
 
-        # Try to merge the new 'output.xml' into the previous one
-        if os.path.exists('robot_output.xml'):
+        # Try to merge the second 'output.xml' into the first one or into the
+        # final one from the previous test run when requested by setting
+        # environment variable ROBOTSUITE_PRESERVE_OUTPUT_XML
+        global append_output_xml
+        if not append_output_xml:
+            append_output_xml = True
+        elif os.path.exists('robot_output.xml'):
             with open('robot_output.xml') as handle:
                 merged_output = etree.fromstring(handle.read())
             try:
