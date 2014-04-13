@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="robotsuite",
-    version='1.4.4.dev0',
+    version='1.5.0',
     description="Robot Framework test suite for Python unittest framework",
     long_description=(open("README.rst").read() + "\n" +
                       open("CHANGES.txt").read()),
