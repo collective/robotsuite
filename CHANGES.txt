@@ -4,8 +4,10 @@ Changelog
 1.4.4 (unreleased)
 ------------------
 
-- Nothing changed yet.
-
+- Restore original behavior to override the exiting robot_output.xml. Set
+  environment variable ROBOTSUITE_APPEND_OUTPUT_XML=1 to append test results to
+  the existing robot_output.xml.
+  [Asko Soukka]
 
 1.4.3 (2014-01-27)
 ------------------

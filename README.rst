@@ -37,6 +37,9 @@ reflecting the structure of the given test suite.
 *RobotTestSuite*'s way of wrapping tests into
 unittest's test suite is similar to how doctest-module's
 DocTestSuite does its wrappings.
+See the documentation of DocTestSuite for
+possible common parameters (e.g. for how to pass a test suite from a
+different package).
 
 The main motivation behind this package is to make
 Robot Framework support existing test fixtures and test isolation
@@ -100,3 +103,18 @@ slow test being run unless wanted:
        ])
        suite.level = 10
        return suite
+
+
+Appending test results to existing test report
+----------------------------------------------
+
+When running Robot Framework through robotsuite, its test reports are created
+into the current working directory with filenames ``robot_output.xml``,
+``robot_log.html`` and ``robot_report.html``. The default behavior is to
+override the existing ``robot_output.xml`` (and also the other report files
+generated from that).
+
+To merge test results from separate test runs into the same test report, set
+environment variable ``ROBOTSUITE_APPEND_OUTPUT_XML=1`` to prevent robotsuite
+from overriding the existing test results, but to always append to the existing
+``robot_output.xml``.
