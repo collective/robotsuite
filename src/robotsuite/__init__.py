@@ -16,7 +16,10 @@
 # Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """Python unittest wrapper for Robot Framework
 """
-import StringIO
+from __future__ import print_function
+
+import six
+from six import StringIO
 import doctest
 import logging
 import os
@@ -34,7 +37,10 @@ from robot.conf import RobotSettings
 from robot.reporting import ResultWriter
 from robot.running import TestSuiteBuilder
 
-import unittest2 as unittest
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
 from lxml import etree
 
 append_output_xml = bool(os.environ.get('ROBOTSUITE_APPEND_OUTPUT_XML'))
@@ -49,8 +55,8 @@ def normalize(s, replace_spaces=True):
     """
     whitelist = (' -' + string.ascii_letters + string.digits)
 
-    if type(s) == str:
-        s = unicode(s, 'utf-8', 'ignore')
+    if type(s) == six.binary_type:
+        s = six.text_type(s, 'utf-8', 'ignore')
 
     table = {}
     for ch in [ch for ch in s if ch not in whitelist]:
@@ -230,10 +236,10 @@ class RobotTestCase(unittest.TestCase):
             elif name:
                 tests = child_suite.testcase_table.tests
                 child_suite.testcase_table.tests = \
-                    filter(lambda x: x.name == name, tests)
+                    list(filter(lambda x: x.name == name, tests))
                 test_case._relative_path = \
                     os.path.relpath(child_suite.source, suite_parent)
-                if len(child_suite.testcase_table.tests):
+                if len(list(child_suite.testcase_table.tests)):
                     found = True
             for grandchild in getattr(child_suite, 'children', [])[:]:
                 if not walk(grandchild, test_case, suite_parent):
@@ -294,7 +300,7 @@ class RobotTestCase(unittest.TestCase):
                                        markers=settings['MonitorMarkers'],
                                        stdout=settings['StdOut'],
                                        stderr=settings['StdErr'])
-        LOGGER.info('Settings:\n%s' % unicode(settings))
+        LOGGER.info('Settings:\n%s' % six.text_type(settings))
         suite = TestSuiteBuilder(
             settings['SuiteNames'],
             settings['WarnOnSkipped'],
@@ -311,7 +317,7 @@ class RobotTestCase(unittest.TestCase):
 
     def runTest(self):
         # Create StringIO to capture stdout into
-        stdout = StringIO.StringIO()
+        stdout = StringIO()
 
         # Inject logged errors into our captured stdout
         logger = logging.getLogger()
@@ -345,8 +351,8 @@ class RobotTestCase(unittest.TestCase):
 
         # Get full relative path for the 'output.xml' and read it into 'data'
         current_data_source = os.path.join(self._robot_outputdir, 'output.xml')
-        with open(current_data_source) as handle:
-            data = unicode(handle.read(), 'utf-8')
+        with open(current_data_source, 'rb') as handle:
+            data = six.text_type(handle.read(), 'utf-8')
 
         # Copy screenshots in to the current working directory
         dirname = os.path.dirname(current_data_source)
@@ -370,7 +376,7 @@ class RobotTestCase(unittest.TestCase):
         if not append_output_xml:
             append_output_xml = True
         elif os.path.exists('robot_output.xml'):
-            with open('robot_output.xml') as handle:
+            with open('robot_output.xml', 'rb') as handle:
                 merged_output = etree.fromstring(handle.read())
             try:
                 current_output = etree.fromstring(data.encode('utf-8'))
@@ -395,16 +401,16 @@ class RobotTestCase(unittest.TestCase):
                 merge(merged_output, current_output)
                 data = etree.tostring(merged_output)
             # Catch any exception here and print it (to help fixing it)
-            except Exception, e:
+            except Exception as e:
                 import traceback
 
-                stacktrace = StringIO.StringIO()
+                stacktrace = StringIO()
                 traceback.print_exc(None, stacktrace)
-                print "ROBOTSUITE ERROR when merging test reports: %s\n%s" % \
-                      (str(e), stacktrace.getvalue())
+                print("ROBOTSUITE ERROR when merging test reports: %s\n%s" % \
+                      (str(e), stacktrace.getvalue()))
 
         # Save the merged 'output.xml' and generate merged reports
-        with open('robot_output.xml', 'w') as handle:
+        with open('robot_output.xml', 'wb') as handle:
             handle.write(data.encode('utf-8'))
         robot_rebot('robot_output.xml', stdout=stdout, output='NONE',
                     log='robot_log.html', report='robot_report.html',

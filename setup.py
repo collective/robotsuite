@@ -1,4 +1,19 @@
+import sys
 from setuptools import setup, find_packages
+
+PY3 = sys.version_info[0] == 3
+
+install_requires = [
+        "six",
+        "setuptools",
+        "lxml",
+    ]
+
+if PY3:
+    install_requires.append('robotframework-python3>=2.8rc1')
+else:
+    install_requires.extend(['robotframework>=2.8rc1',
+                             'unittest2'])
 
 setup(
     name="robotsuite",
@@ -10,6 +25,8 @@ setup(
     # http://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
         "Programming Language :: Python",
+        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3.4",
     ],
     keywords="",
     author="Asko Soukka",
@@ -21,12 +38,7 @@ setup(
     namespace_packages=[],
     include_package_data=True,
     zip_safe=False,
-    install_requires=[
-        "setuptools",
-        "unittest2",
-        "robotframework>=2.8rc1",
-        "lxml",
-    ],
+    install_requires=install_requires,
     extras_require={"test": [
         "plone.app.testing",
         "robotframework-selenium2library",
