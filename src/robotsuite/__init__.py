@@ -399,7 +399,7 @@ class RobotTestCase(unittest.TestCase):
                 except AttributeError:
                     pass
                 merge(merged_output, current_output)
-                data = etree.tostring(merged_output)
+                data = etree.tostring(merged_output).decode('utf-8')
             # Catch any exception here and print it (to help fixing it)
             except Exception as e:
                 import traceback
