@@ -5,8 +5,8 @@ syntax: glob
 .idea
 .installed.cfg
 .ropeproject
-bin
-buildout-cache
-develop-eggs
-dist
-parts
+/bin
+/buildout-cache
+/develop-eggs
+/dist
+/parts
