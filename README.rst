@@ -88,7 +88,7 @@ as keyword argument for *RobotTestSuite* as follows:
 
 
 Setting zope.testrunner-level
----------------------------------
+-----------------------------
 
 `zope.testrunner`_ supports annotating test suites with levels to avoid
 slow test being run unless wanted:
@@ -118,3 +118,52 @@ To merge test results from separate test runs into the same test report, set
 environment variable ``ROBOTSUITE_APPEND_OUTPUT_XML=1`` to prevent robotsuite
 from overriding the existing test results, but to always append to the existing
 ``robot_output.xml``.
+
+
+Including or skipping all RobotTestSuite-wrapped tests
+------------------------------------------------------
+
+Robot Framework is often used with Selenium2Library_ to write acceptance test
+using the Selenium-framework. Yet, because those test may be slow to run, one
+might want sometimes (e.g. on CI) to run everything except the robotsuite
+wrapped tests, and later only the robotsuite wrapped tests.
+
+This can be achieved for sure, with injecting a custom string into the names
+of robotsuite-wrapped tests with ``ROBOTSUITE_PREFIX``-environment variable
+and then filter the test with that string.
+
+E.g. run everything except the robotsuite wrapped tests with:
+
+.. code:: bash
+
+   $ ROBOTSUITE_PREFIX=ROBOTSUITE bin/test --all -t \!ROBOTSUITE
+
+and the other way around with:
+
+.. code:: bash
+
+   $ ROBOTSUITE_PREFIX=ROBOTSUITE bin/test --all -t ROBOTSUITE
+
+.. _Selenium2Library: https://pypi.python.org/pypi/robotframework-selenium2library
+
+
+
+Re-using test suites from other packages
+----------------------------------------
+
+Sometime it could be useful to re-use acceptance test from some upstream
+package to test your slightly tailored package (e.g. with a custom theme).
+This can be done with by defining the test lookup location with
+``package``-keyword argment for ``RobotTestSuite``:
+
+.. code:: python
+
+    def test_suite():
+        suite = unittest.TestSuite()
+        suite.addTests([
+            layered(leveled(
+                robotsuite.RobotTestSuite('robot',
+                                          package='Products.CMFPlone.tests'),
+            ), layer=PLONE_APP_MOSAIC_NO_PAC_ROBOT),
+        ])
+        return suite

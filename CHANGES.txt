@@ -1,11 +1,17 @@
 Changelog
 =========
 
-1.5.1 (unreleased)
+1.6.0 (unreleased)
 ------------------
 
-- Added Python 3.4 support.
-  [vincentfretin]
+- Add support for ROBOTSUITE_PREFIX-env for injecting custom string into all
+  robotsuite test names
+  [Asko Soukka]
+- Add UTF-8 support for robot variables [#6]
+  [Tom Gross]
+  [Vincent Fretin]
+- Added Python 3.4 support
+  [Vincent Fretin]
 
 
 1.5.0 (2014-04-13)
