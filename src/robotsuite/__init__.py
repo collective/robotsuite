@@ -85,7 +85,10 @@ def get_robot_variables():
     variables = []
     for key in os.environ:
         if key.startswith(prefix) and len(key) > len(prefix):
-            variables.append('%s:%s' % (key[len(prefix):], os.environ[key]))
+            variables.append(six.text_type(
+                '%s:%s' % (key[len(prefix):], os.environ[key]),
+                'utf-8', 'ignore')
+            )
     return variables
 
 
