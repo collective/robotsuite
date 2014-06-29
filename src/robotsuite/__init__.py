@@ -288,9 +288,13 @@ class RobotTestCase(unittest.TestCase):
 
     def __str__(self):
         tags = ''
+        prefix = os.environ.get('ROBOTSUITE_PREFIX') or ''
+        if prefix:
+            prefix += ':'
         for tag in (self._tags or []):
             tags += ' #' + tag
-        return '%s (%s)%s' % (self._testMethodName, self._relative_path, tags)
+        return '%s (%s%s)%s' % (
+            self._testMethodName, prefix, self._relative_path, tags)
 
     def id(self):
         return '%s.%s.%s' % (
