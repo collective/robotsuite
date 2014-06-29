@@ -201,7 +201,7 @@ class RobotTestCase(unittest.TestCase):
     """
     def __init__(self, filename, module_relative=True, package=None,
                  source=None, name=None, tags=None, variables=[],
-                 outputdir=None, setUp=None, tearDown=None, 
+                 outputdir=None, setUp=None, tearDown=None,
                  critical=None, noncritical=None, **kw):
         unittest.TestCase.__init__(self)
 
@@ -250,9 +250,13 @@ class RobotTestCase(unittest.TestCase):
 
     def __str__(self):
         tags = ''
+        prefix = os.environ.get('ROBOTSUITE_PREFIX') or ''
+        if prefix:
+            prefix += ':'
         for tag in (self._tags or []):
             tags += ' #' + tag
-        return '%s (%s)%s' % (self._testMethodName, self._relpath, tags)
+        return '%s (%s%s)%s' % (
+            self._testMethodName, prefix, self._relpath, tags)
 
     def id(self):
         return '%s.%s.%s' % (

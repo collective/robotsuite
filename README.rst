@@ -51,3 +51,29 @@ http://github.com/collective/robotsuite/
 
 .. image:: https://secure.travis-ci.org/collective/robotsuite.png
    :target: http://travis-ci.org/collective/robotsuite
+
+Including or skipping all RobotTestSuite-wrapped tests
+------------------------------------------------------
+
+Robot Framework is often used with Selenium2Library_ to write acceptance test
+using the Selenium-framework. Yet, because those test may be slow to run, one
+might want sometimes (e.g. on CI) to run everything except the robotsuite
+wrapped tests, and later only the robotsuite wrapped tests.
+
+This can be achieved for sure, with injecting a custom string into the names
+of robotsuite-wrapped tests with ``ROBOTSUITE_PREFIX``-environment variable
+and then filter the test with that string.
+
+E.g. run everything except the robotsuite wrapped tests with:
+
+.. code:: bash
+
+   $ ROBOTSUITE_PREFIX=ROBOTSUITE bin/test --all -t \!ROBOTSUITE
+
+and the other way around with:
+
+.. code:: bash
+
+   $ ROBOTSUITE_PREFIX=ROBOTSUITE bin/test --all -t ROBOTSUITE
+
+.. _Selenium2Library: https://pypi.python.org/pypi/robotframework-selenium2library
