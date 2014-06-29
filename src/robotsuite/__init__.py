@@ -83,12 +83,16 @@ def get_robot_variables():
     """
     prefix = 'ROBOT_'
     variables = []
+    def safe_str(s):
+        if isinstance(s, six.text_type):
+            return s
+        else:
+            return six.text_type(s, 'utf-8', 'ignore')
     for key in os.environ:
         if key.startswith(prefix) and len(key) > len(prefix):
-            variables.append(six.text_type(
+            variables.append(safe_str(
                 '%s:%s' % (key[len(prefix):], os.environ[key]),
-                'utf-8', 'ignore')
-            )
+            ))
     return variables
 
 
