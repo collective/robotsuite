@@ -10,3 +10,5 @@ syntax: glob
 /develop-eggs
 /dist
 /parts
+/robot_*
+/test_*
