@@ -43,6 +43,10 @@ except ImportError:
     import unittest
 from lxml import etree
 
+try:
+    loglevel = int(getattr(logging, os.environ.get('ROBOTSUITE_LOGLEVEL')))
+except (AttributeError, TypeError, ValueError):
+    loglevel = 20
 append_output_xml = bool(os.environ.get('ROBOTSUITE_APPEND_OUTPUT_XML'))
 
 last_status = None
@@ -83,6 +87,7 @@ def get_robot_variables():
     """
     prefix = 'ROBOT_'
     variables = []
+
     def safe_str(s):
         if isinstance(s, six.text_type):
             return s
@@ -102,6 +107,8 @@ def merge(a, b):
     note that the original single test reports will remain untouched.
 
     """
+    global loglevel
+
     # Iterate throughout the currently merged node set
     for child in b.iterchildren():
 
@@ -199,6 +206,14 @@ def merge(a, b):
         # Merge errors
         elif child.tag == 'errors':
             errors = a.xpath('errors')
+            # Filter by loglevel
+            for grandchild in tuple(child.iterchildren()):
+                try:
+                    level = int(getattr(logging, grandchild.get('level')))
+                except (TypeError, AttributeError, ValueError):
+                    level = 0
+                if level <= loglevel:
+                    child.remove(grandchild)
             # When no errors are found, append to root
             if not errors:
                 a.append(child)
@@ -417,7 +432,7 @@ class RobotTestCase(unittest.TestCase):
 
                 stacktrace = StringIO()
                 traceback.print_exc(None, stacktrace)
-                print("ROBOTSUITE ERROR when merging test reports: %s\n%s" % \
+                print("ROBOTSUITE ERROR when merging test reports: %s\n%s" %
                       (str(e), stacktrace.getvalue()))
 
         # Save the merged 'output.xml' and generate merged reports
