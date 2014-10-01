@@ -4,8 +4,9 @@ Changelog
 1.6.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
-
+- Add ROBOTSUITE_LOGLEVEL environment variable for filtering text execution
+  errors during log merge
+  [Asko Soukka]
 
 1.6.0 (2014-06-29)
 ------------------

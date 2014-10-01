@@ -212,7 +212,7 @@ def merge(a, b):
                     level = int(getattr(logging, grandchild.get('level')))
                 except (TypeError, AttributeError, ValueError):
                     level = 0
-                if level <= loglevel:
+                if level < loglevel:
                     child.remove(grandchild)
             # When no errors are found, append to root
             if not errors:

@@ -120,6 +120,15 @@ from overriding the existing test results, but to always append to the existing
 ``robot_output.xml``.
 
 
+Filtering test execution errors
+-------------------------------
+
+Set environment variable ``ROBOTSUITE_LOGLEVEL=ERROR`` to filter all top level
+*Test Execution Errors* below the given log level (e.g. ERROR) from the merged
+test report. This is useful when unnecessary warnings are leaking from the
+tested code into Robot Framework logs.
+
+
 Including or skipping all RobotTestSuite-wrapped tests
 ------------------------------------------------------
 
