@@ -17,7 +17,7 @@ else:
 
 setup(
     name='robotsuite',
-    version='1.6.1.dev0',
+    version='1.6.1',
     description='Robot Framework test suite for Python unittest framework',
     long_description=(open('README.rst').read() + '\n' +
                       open('CHANGES.txt').read()),
