@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.6.2 (unreleased)
+1.7.0 (2015-07-23)
 ------------------
 
 - Add support for Robot Framework 2.9
