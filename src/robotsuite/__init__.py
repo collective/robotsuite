@@ -228,12 +228,16 @@ class RobotListener(object):
     last known test result into a global variable
 
     """
+    ROBOT_LISTENER_API_VERSION = 2
 
-    def end_test(self, status, message):
+    def __init__(self, test_name = ''):
+        self.test_name = test_name
+
+    def end_test(self, name, attributes):
         global last_status
         global last_message
-        last_status = status
-        last_message = message
+        last_status = attributes['status']
+        last_message = attributes['message']
 
 
 class RobotTestCase(unittest.TestCase):
@@ -321,16 +325,11 @@ class RobotTestCase(unittest.TestCase):
 
     def _runTest(self, parsed, **options):
         settings = RobotSettings(options)
-        LOGGER.register_console_logger(width=settings['MonitorWidth'],
-                                       colors=settings['MonitorColors'],
-                                       markers=settings['MonitorMarkers'],
-                                       stdout=settings['StdOut'],
-                                       stderr=settings['StdErr'])
-        LOGGER.info('Settings:\n%s' % six.text_type(settings))
+        LOGGER.register_console_logger(**settings.console_output_config)
+        LOGGER.info('Settings:\n%s' % unicode(settings))
         suite = TestSuiteBuilder(
             settings['SuiteNames'],
-            settings['WarnOnSkipped'],
-            settings['RunEmptySuite'])._build_suite(parsed)
+            settings['WarnOnSkipped'])._build_suite(parsed)
         suite.configure(**settings.suite_config)
         result = suite.run(settings)
         LOGGER.info("Tests execution ended. Statistics:\n%s"
