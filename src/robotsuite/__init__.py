@@ -326,8 +326,11 @@ class RobotTestCase(unittest.TestCase):
     def _runTest(self, parsed, **options):
         settings = RobotSettings(options)
         output_config = getattr(settings, 'console_output_config', {
-            'stdout':  settings['StdOut'],
-            'stderr':  settings['StdErr']
+            'width': getattr(settings, 'console_width', 78),
+            'colors': getattr(settings, 'console_colors', 'AUTO'),
+            'markers': getattr(settings, 'console_markers', 'AUTO'),
+            'stdout': settings['StdOut'],
+            'stderr': settings['StdErr']
         })
         LOGGER.register_console_logger(**output_config)
         LOGGER.info('Settings:\n%s' % six.text_type(settings))
