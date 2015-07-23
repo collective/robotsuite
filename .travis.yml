@@ -9,8 +9,12 @@ python:
 - "3.4"
 install:
 - python bootstrap.py
-- bin/buildout -N -t 3
+- bin/buildout -N -t 3 versions:robotframework=$RF
 before_script:
 - export DISPLAY=:99.0
 - sh -e /etc/init.d/xvfb start
 script: bin/test
+env:
+- RF=2.8.4
+- RF=2.9rc1
+- RF=
