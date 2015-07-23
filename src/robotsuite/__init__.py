@@ -325,8 +325,12 @@ class RobotTestCase(unittest.TestCase):
 
     def _runTest(self, parsed, **options):
         settings = RobotSettings(options)
-        LOGGER.register_console_logger(**settings.console_output_config)
-        LOGGER.info('Settings:\n%s' % unicode(settings))
+        output_config = getattr(settings, 'console_output_config', {
+            'stdout':  settings['StdOut'],
+            'stderr':  settings['StdErr']
+        })
+        LOGGER.register_console_logger(**output_config)
+        LOGGER.info('Settings:\n%s' % six.text_type(settings))
         suite = TestSuiteBuilder(
             settings['SuiteNames'],
             settings['WarnOnSkipped'])._build_suite(parsed)
