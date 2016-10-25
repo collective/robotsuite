@@ -12,8 +12,7 @@ install_requires = [
 if PY3:
     install_requires.append('robotframework-python3>=2.8rc1')
 else:
-    install_requires.extend(['robotframework>=2.8rc1',
-                             'unittest2'])
+    install_requires.extend(['robotframework>=2.8rc1', ])
 
 setup(
     name='robotsuite',

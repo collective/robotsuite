@@ -8,7 +8,7 @@ as `plone.testing`_'s layered test suites:
 
 .. code:: python
 
-    import unittest2 as unittest
+    import unittest
 
     from plone.testing import layered
     from robotsuite import RobotTestSuite

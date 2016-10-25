@@ -28,6 +28,7 @@ import shutil
 import string
 import types
 import unicodedata
+import unittest
 
 from robot import parsing as robot_parsing
 from robot import model as robot_model
@@ -37,10 +38,6 @@ from robot.conf import RobotSettings
 from robot.reporting import ResultWriter
 from robot.running import TestSuiteBuilder
 
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
 from lxml import etree
 
 try:
