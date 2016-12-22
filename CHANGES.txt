@@ -1,11 +1,14 @@
 Changelog
 =========
 
-1.7.1 (unreleased)
+2.0.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Do not support python 2.6 anymore
+  [gforcada]
 
+- Remove unittest2 references
+  [gforcada]
 
 1.7.0 (2015-07-23)
 ------------------
