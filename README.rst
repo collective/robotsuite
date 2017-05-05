@@ -156,7 +156,6 @@ and the other way around with:
 .. _Selenium2Library: https://pypi.python.org/pypi/robotframework-selenium2library
 
 
-
 Re-using test suites from other packages
 ----------------------------------------
 
@@ -176,3 +175,17 @@ This can be done with by defining the test lookup location with
             ), layer=PLONE_APP_MOSAIC_NO_PAC_ROBOT),
         ])
         return suite
+
+
+Flatten Robot Framework test suites into single *unittest.TestCase*
+-------------------------------------------------------------------
+
+Setting environment variable ``ROBOTSUITE_FLATTEN=true`` will disable the
+default behavior of running each Robot Framework test case as its own
+Python *unittest.TestCase*, but will run the complete Robot Framework
+tests suite in a single *unittest.TestCase*:
+
+.. code:: bash
+
+   $ ROBOTSUITE_FLATTE=true bin/test --all
+

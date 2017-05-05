@@ -40,6 +40,8 @@ from robot.running import TestSuiteBuilder
 
 from lxml import etree
 
+flatten = (os.environ.get('ROBOTSUITE_FLATTEN') or '').lower() in ['1', 'true', 'yes', 'on']  # noqa
+
 try:
     loglevel = int(getattr(logging, os.environ.get('ROBOTSUITE_LOGLEVEL')))
 except (AttributeError, TypeError, ValueError):
@@ -271,7 +273,10 @@ class RobotTestCase(unittest.TestCase):
                     found = True
             return found
 
-        walk(suite, self, suite_parent)
+        if name:
+            walk(suite, self, suite_parent)
+        else:
+            self._relative_path = os.path.basename(filename)
 
         # Mimic DocTestCase to support plone.testing's way of settings test
         # layer as doctest global:
@@ -285,7 +290,7 @@ class RobotTestCase(unittest.TestCase):
         # Set outputdir for log, report and screenshots
         self._robot_outputdir = outputdir
         # Set test method name from the test name
-        self._testMethodName = normalize(name or 'runTest',
+        self._testMethodName = normalize(name or suite.name or 'runTest',
                                          replace_spaces=False)
         # Set tags to be included in tests' __str__
         self._tags = tags
@@ -498,6 +503,17 @@ def RobotTestSuite(*paths, **kw):
                 recurs(grandchild)
             outputdir.pop()
 
-        recurs(robot_suite)
+        if flatten:
+            # Run the whole suite as a single test
+            suite_base = os.path.basename(robot_suite.source)
+            suite_dir = os.path.splitext(suite_base)[0]
+            suite.addTest(RobotTestCase(path, name=None,
+                                        tags=[],
+                                        variables=variables,
+                                        source=robot_suite,
+                                        outputdir=suite_dir,
+                                        **kw))
+        else:
+            recurs(robot_suite)
 
     return suite

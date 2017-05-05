@@ -15,6 +15,9 @@ before_script:
 - sh -e /etc/init.d/xvfb start
 script: bin/test
 env:
-- RF=2.8.4
-- RF=2.9rc1
-- RF=
+- RF=2.8.4 ROBOTSUITE_FLATTEN=false
+- RF=2.8.4 ROBOTSUITE_FLATTEN=true
+- RF=2.9rc1 ROBOTSUITE_FLATTEN=false
+- RF=2.9rc1 ROBOTSUITE_FLATTEN=true
+- RF= ROBOTSUITE_FLATTEN=false
+- RF= ROBOTSUITE_FLATTEN=true
