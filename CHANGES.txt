@@ -4,8 +4,9 @@ Changelog
 2.0.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
-
+- Drop robotframework-python3 requirement,
+  robotframework itself is already python 3 compatible.
+  [gforcada]
 
 2.0.0 (2016-12-22)
 ------------------
