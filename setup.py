@@ -8,7 +8,7 @@ install_requires = [
     'setuptools',
     'lxml',
     'robotframework>=3.0',
-])
+]
 
 setup(
     name='robotsuite',
