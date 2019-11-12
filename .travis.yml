@@ -12,6 +12,7 @@ install:
 - buildout -N -t 3 versions:robotframework=$RF
 script: bin/test
 env:
+- RF=2.8.2
 - RF=2.8.7
 - RF=2.9.2
 - RF=3.0.4
@@ -21,9 +22,13 @@ env:
 jobs:
   exclude:
   - python: 3.6
+    env: RF=2.8.2
+  - python: 3.6
     env: RF=2.8.7
   - python: 3.6
     env: RF=2.9.2
+  - python: 3.7
+    env: RF=2.8.2
   - python: 3.7
     env: RF=2.8.7
   - python: 3.7
