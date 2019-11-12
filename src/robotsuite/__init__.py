@@ -417,7 +417,7 @@ class RobotTestCase(unittest.TestCase):
         # Copy screenshots in to the current working directory
         dirname = os.path.dirname(current_data_source)
         prefix = 'robot_%s_' % dirname.replace(os.path.sep, '_')
-        screenshots = re.findall('src="([^"]+\.png)"', data)
+        screenshots = re.findall(r'src="([^"]+\.png)"', data)
         for filename in screenshots:
             path = os.path.join(dirname, filename)
             if os.path.isfile(path):
@@ -426,7 +426,7 @@ class RobotTestCase(unittest.TestCase):
                     .replace(os.pardir, '')
                 shutil.copyfile(path, "%s%s" % (prefix, copy_filename))
         # Fix 'a' and 'img' tags to target the copied versions
-        data = re.sub('(href|src)="([^"]+\.png)"',
+        data = re.sub(r'(href|src)="([^"]+\.png)"',
                       '\\1="%s\\2"' % prefix, data)
 
         # Try to merge the second 'output.xml' into the first one or into the
