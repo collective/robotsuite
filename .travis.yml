@@ -5,14 +5,11 @@ cache:
     - eggs
 python:
 - "2.7"
-- "3.4"
-- "3.5"
+- "3.6"
+- "3.7"
 install:
 - pip install zc.buildout
 - buildout -N -t 3 versions:robotframework=$RF
-before_script:
-- export DISPLAY=:99.0
-- sh -e /etc/init.d/xvfb start
 script: bin/test
 env:
 - RF=2.8.4
