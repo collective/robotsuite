@@ -7,7 +7,7 @@ install_requires = [
     'six',
     'setuptools',
     'lxml',
-    'robotframework>=3.0',
+    'robotframework>=2.8',
 ]
 
 setup(
