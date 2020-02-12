@@ -4,7 +4,11 @@ Changelog
 2.0.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Add optional support for retrying a failed test.
+  Set environment variable ``ROBOTSUITE_RETRY_COUNT=X``.
+  Or override this by passing ``retry_count=X`` to a ``RobotTestSuite`` call.
+  Default is zero: no retries.  The retry count *excludes* the original try.
+  [maurits]
 
 
 2.0.0 (2016-12-22)
