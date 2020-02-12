@@ -344,7 +344,7 @@ class RobotTestCase(unittest.TestCase):
             writer.write_results(settings.get_rebot_settings())
         return rc
 
-    def runTest(self):
+    def _get_output_from_test_run(self):
         # Create StringIO to capture stdout into
         stdout = StringIO()
 
@@ -368,7 +368,10 @@ class RobotTestCase(unittest.TestCase):
         }
         self._runTest(self._robot_suite, **options)
         stdout.seek(0)
+        return stdout
 
+    def runTest(self):
+        stdout = self._get_output_from_test_run()
         # Dump stdout on test failure or error
         if last_status != 'PASS':
             print('\n%s' % stdout.read())
