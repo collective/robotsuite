@@ -105,6 +105,35 @@ slow test being run unless wanted:
        return suite
 
 
+Retry failing tests
+-------------------
+
+You can retry a failed test.
+This can be useful for flaky robot browser tests.
+Warning: this may not be good for all types of test.
+For example any changes that were done in the test until the first failure, may persist.
+
+You can enable retries in two ways:
+
+- Set an environment variable ``ROBOTSUITE_RETRY_COUNT=X``.
+
+- Override this by passing ``retry_count=X`` to a ``RobotTestSuite`` call.
+
+The default is zero: no retries.
+The retry count *excludes* the original try.
+
+.. code:: python
+
+    def test_suite():
+        suite = unittest.TestSuite()
+        suite.addTests([
+            robotsuite.RobotTestSuite('test_example.robot', retry_count=3),
+            robotsuite.RobotTestSuite('test_variables.robot'),
+            robotsuite.RobotTestSuite('test_setups', retry_count=2)
+        ])
+        return suite
+
+
 Appending test results to existing test report
 ----------------------------------------------
 

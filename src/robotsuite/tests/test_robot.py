@@ -9,7 +9,7 @@ def test_suite():
     os.environ['ROBOT_MYVAR2'] = 'ÅÄÖ'
     suite = unittest.TestSuite()
     suite.addTests([
-        robotsuite.RobotTestSuite('test_example.robot'),
+        robotsuite.RobotTestSuite('test_example.robot', retry_count=3),
         robotsuite.RobotTestSuite('test_variables.robot'),
         robotsuite.RobotTestSuite('test_setups')
     ])

@@ -252,7 +252,7 @@ class RobotTestCase(unittest.TestCase):
     def __init__(self, filename, module_relative=True, package=None,
                  source=None, name=None, tags=None, variables=None,
                  outputdir=None, setUp=None, tearDown=None, critical=None,
-                 noncritical=None, **kw):
+                 noncritical=None, retry_count=0, **kw):
         unittest.TestCase.__init__(self)
 
         filename = doctest._module_relative_path(package, filename)
@@ -325,6 +325,10 @@ class RobotTestCase(unittest.TestCase):
         self._critical = critical or []
         self._noncritical = noncritical or []
 
+        # Set number of retries that we are allowed to do on failure.
+        # Default is zero.
+        self.retry_count = retry_count
+
         # Set test fixture setup and teardown methods when given
         if setUp:
             setattr(self, 'setUp', types.MethodType(setUp, self))
@@ -375,7 +379,7 @@ class RobotTestCase(unittest.TestCase):
             writer.write_results(settings.get_rebot_settings())
         return rc
 
-    def runTest(self):
+    def _get_output_from_test_run(self):
         # Create StringIO to capture stdout into
         stdout = StringIO()
 
@@ -399,10 +403,23 @@ class RobotTestCase(unittest.TestCase):
         }
         self._runTest(self._robot_suite, **options)
         stdout.seek(0)
+        return stdout
 
-        # Dump stdout on test failure or error
-        if last_status != 'PASS':
-            print('\n%s' % stdout.read())
+    def runTest(self):
+        # Try the test a few times.  Default: one.
+        tries = self.retry_count + 1
+        for _try in range(tries):
+            if _try:
+                print('Retrying test "{}" after failure. Retry {}.'.format(self, _try))
+            stdout = self._get_output_from_test_run()
+            # Dump stdout on test failure or error
+            if last_status != 'PASS':
+                print('\n%s' % stdout.read())
+            else:
+                if _try:
+                    print('Test "{}" passed successfully after retry {}.'.format(self, _try))
+                break
+
 
         # XXX: Up to this point, everything was easy. Unfortunately, now we
         # must merge all the separate test reports into a one big summary and
@@ -498,6 +515,15 @@ def RobotTestSuite(*paths, **kw):
             suite.level = int(os.environ.get('ROBOTSUITE_LEVEL', 1))
         except ValueError:
             pass
+    if 'retry_count' in kw:
+        retry_count = kw.pop('retry_count')
+    else:
+        retry_count = 0
+        if 'ROBOTSUITE_RETRY_COUNT' in os.environ:
+            try:
+                retry_count = int(os.environ.get('ROBOTSUITE_RETRY_COUNT', 0))
+            except ValueError:
+                pass
     if kw.get('module_relative', True):
         kw['package'] = doctest._normalize_module(kw.get('package'))
 
@@ -535,6 +561,7 @@ def RobotTestSuite(*paths, **kw):
                                             variables=variables,
                                             source=child_suite.source,
                                             outputdir='/'.join(outputdir),
+                                            retry_count=retry_count,
                                             **kw))
                 outputdir.pop()
             if HAS_RF32_PARSER:
