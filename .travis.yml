@@ -4,17 +4,32 @@ cache:
   directories:
     - eggs
 python:
-- "2.7"
-- "3.4"
-- "3.5"
+- 2.7
+- 3.6
+- 3.7
 install:
-- python bootstrap.py
-- bin/buildout -N -t 3 versions:robotframework=$RF
-before_script:
-- export DISPLAY=:99.0
-- sh -e /etc/init.d/xvfb start
+- pip install zc.buildout
+- buildout -N -t 3 versions:robotframework=$RF
 script: bin/test
 env:
-- RF=2.8.4
-- RF=2.9rc1
+- RF=2.8.2
+- RF=2.8.7
+- RF=2.9.2
+- RF=3.0.4
+- RF=3.1.2
+- RF=3.2a1
 - RF=
+jobs:
+  exclude:
+  - python: 3.6
+    env: RF=2.8.2
+  - python: 3.6
+    env: RF=2.8.7
+  - python: 3.6
+    env: RF=2.9.2
+  - python: 3.7
+    env: RF=2.8.2
+  - python: 3.7
+    env: RF=2.8.7
+  - python: 3.7
+    env: RF=2.9.2

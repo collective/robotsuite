@@ -6,13 +6,9 @@ PY3 = sys.version_info[0] == 3
 install_requires = [
     'six',
     'setuptools',
-    'lxml'
+    'lxml',
+    'robotframework>=2.8',
 ]
-
-if PY3:
-    install_requires.append('robotframework-python3>=2.8rc1')
-else:
-    install_requires.extend(['robotframework>=2.8rc1', ])
 
 setup(
     name='robotsuite',
@@ -25,7 +21,8 @@ setup(
     classifiers=[
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
     ],
     keywords='',
     author='Asko Soukka',
