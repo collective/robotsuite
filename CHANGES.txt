@@ -4,14 +4,9 @@ Changelog
 2.2.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
-
-
-2.2.0 (2020-02-14)
-------------------
-
-- Nothing changed yet.
-
+- Revert support for Robot Framework 3.2b1 due to observer
+  regression between 2.0.0 and 2.1.1
+  [datakurre]
 
 2.1.1 (2020-02-13)
 ------------------
