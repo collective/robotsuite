@@ -12,7 +12,7 @@ install_requires = [
 
 setup(
     name='robotsuite',
-    version='2.2.1.dev0',
+    version='2.2.1',
     description='Robot Framework test suite for Python unittest framework',
     long_description=(open('README.rst').read() + '\n' +
                       open('CHANGES.txt').read()),

@@ -1,7 +1,7 @@
 Changelog
 =========
 
-2.2.1 (unreleased)
+2.2.1 (2020-02-14)
 ------------------
 
 - Revert support for Robot Framework 3.2b1 due to observer
