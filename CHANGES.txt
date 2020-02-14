@@ -1,7 +1,7 @@
 Changelog
 =========
 
-2.1.2 (unreleased)
+2.2.0 (2020-02-14)
 ------------------
 
 - Nothing changed yet.
