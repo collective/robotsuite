@@ -17,7 +17,7 @@ env:
 - RF=2.9.2
 - RF=3.0.4
 - RF=3.1.2
-- RF=3.2b1
+# RF=3.2b1
 - RF=
 jobs:
   exclude:
