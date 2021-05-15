@@ -2,6 +2,7 @@ syntax: glob
 *.egg-info
 *.mo
 *.pyc
+.cache/
 .idea
 .installed.cfg
 .ropeproject
