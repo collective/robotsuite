@@ -1,0 +1,45 @@
+name: "build"
+on:
+  push:
+  pull_request:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: [python27, python36, python37, python38, python39]
+        robotframework: [2.8.2, 2.8.7, 2.9.2, 3.0.4, 3.1.2]
+        exclude:
+          - python: python36
+            robotframework: 2.8.2
+          - python: python36
+            robotframework: 2.8.7
+          - python: python36
+            robotframework: 2.9.2
+          - python: python37
+            robotframework: 2.8.2
+          - python: python37
+            robotframework: 2.8.7
+          - python: python37
+            robotframework: 2.9.2
+          - python: python38
+            robotframework: 2.8.2
+          - python: python38
+            robotframework: 2.8.7
+          - python: python38
+            robotframework: 2.9.2
+          - python: python39
+            robotframework: 2.8.2
+          - python: python39
+            robotframework: 2.8.7
+          - python: python39
+            robotframework: 2.9.2
+    steps:
+    - uses: actions/checkout@v2.3.4
+    - uses: cachix/install-nix-action@v12
+      with:
+        nix_path: nixpkgs=channel:nixos-unstable
+    - uses: cachix/cachix-action@v8
+      with:
+        name: datakurre
+    - run: make nix-test PYTHON=${{ matrix.python }} RF=${{ matrix.robotframework }}
