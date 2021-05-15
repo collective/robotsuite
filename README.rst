@@ -54,8 +54,8 @@ Yet, this should help anyone wanting to use Robot Framework with
 If this works for you, please contribute at:
 http://github.com/collective/robotsuite/
 
-.. image:: https://secure.travis-ci.org/collective/robotsuite.png
-   :target: http://travis-ci.org/collective/robotsuite
+.. image:: https://github.com/collective/robotsuite/actions/workflows/build.yml/badge.svg?branch=master
+   :target: https://github.com/collective/robotsuite/actions
 
 
 Setting robot variables from environment variables
