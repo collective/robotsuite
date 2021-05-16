@@ -545,10 +545,10 @@ def RobotTestSuite(*paths, **kw):
             suite_dir = os.path.splitext(suite_base)[0]
             outputdir.append(suite_dir)
             if HAS_RF32_PARSER:
-                attr_name = 'tests'
+                tests = child_suite.tests
             else:
-                attr_name = 'testcase_table'
-            for test in getattr(child_suite, attr_name):
+                tests = child_suite.testcase_table.tests
+            for test in tests:
                 test_dir = normalize(test.name)
                 outputdir.append(test_dir)
                 if HAS_RF32_PARSER:
