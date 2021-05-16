@@ -279,10 +279,12 @@ class RobotTestCase(unittest.TestCase):
             elif name:
                 if HAS_RF32_PARSER:
                     tests = child_suite.tests
+                    child_suite.tests = \
+                        list(filter(lambda x: x.name == name, tests))
                 else:
                     tests = child_suite.testcase_table.tests
-                child_suite.tests = \
-                    list(filter(lambda x: x.name == name, tests))
+                    child_suite.testcase_table.tests = \
+                        list(filter(lambda x: x.name == name, tests))
                 test_case._relative_path = \
                     os.path.relpath(child_suite.source, suite_parent)
                 if HAS_RF32_PARSER:
