@@ -8,6 +8,11 @@ CACHIX_CACHE ?= datakurre
 .PHONY: all
 all: test
 
+.PHONY: show
+show:
+	pip list
+	buildout -N annotate versions
+
 .PHONY: test
 test: ./bin/test
 	bin/test
@@ -16,10 +21,10 @@ test: ./bin/test
 nix-%:
 	nix-shell setup.nix $(ARGSTR) -A package --run "$(MAKE) $*"
 
-nix-env: ./nix/requirements-$(PYTHON)-$(ROBOT).nix
+nix-env:
 	nix-build setup.nix $(ARGSTR) -A env
 
-nix-shell: ./nix/requirements-$(PYTHON)-$(ROBOT).nix
+nix-shell:
 	nix-shell setup.nix $(ARGSTR) -A package
 
 .PHONY: cache
