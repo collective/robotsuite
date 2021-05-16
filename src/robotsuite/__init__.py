@@ -48,6 +48,12 @@ except pkg_resources.VersionConflict:
     HAS_RF32_PARSER = False
 
 try:
+    assert robot_model.Criticality
+    HAS_CRITICALITY = True
+except AttributeError:
+    HAS_CRITICALITY = False
+
+try:
     loglevel = int(getattr(logging, os.environ.get('ROBOTSUITE_LOGLEVEL')))
 except (AttributeError, TypeError, ValueError):
     loglevel = 20
@@ -493,16 +499,17 @@ class RobotTestCase(unittest.TestCase):
                     critical=self._critical, noncritical=self._noncritical)
 
         # If the test is critical, raise AssertionError when it has failed
-        criticality = robot_model.Criticality(
-            critical_tags=self._critical, non_critical_tags=self._noncritical)
-        is_critical = (
-            criticality.critical_tags
-            and criticality.critical_tags.match(self._tags)
-        ) or (
-            not criticality.non_critical_tags.match(self._tags)
-        )
-        if is_critical:
-            assert last_status == 'PASS', last_message
+        if HAS_CRITICALITY:
+            criticality = robot_model.Criticality(
+                critical_tags=self._critical, non_critical_tags=self._noncritical)
+            is_critical = (
+                criticality.critical_tags
+                and criticality.critical_tags.match(self._tags)
+            ) or (
+                not criticality.non_critical_tags.match(self._tags)
+            )
+            if is_critical:
+                assert last_status == 'PASS', last_message
 
 
 def RobotTestSuite(*paths, **kw):
