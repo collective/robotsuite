@@ -21,10 +21,10 @@ test: ./bin/test
 nix-%:
 	nix-shell setup.nix $(ARGSTR) -A package --run "$(MAKE) $*"
 
-nix-env: ./nix/requirements-$(PYTHON)-$(ROBOT).nix
+nix-env:
 	nix-build setup.nix $(ARGSTR) -A env
 
-nix-shell: ./nix/requirements-$(PYTHON)-$(ROBOT).nix
+nix-shell:
 	nix-shell setup.nix $(ARGSTR) -A package
 
 .PHONY: cache
