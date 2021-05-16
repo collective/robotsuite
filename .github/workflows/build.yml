@@ -42,4 +42,4 @@ jobs:
     - uses: cachix/cachix-action@v8
       with:
         name: datakurre
-    - run: make nix-test PYTHON=${{ matrix.python }} RF=${{ matrix.robotframework }}
+    - run: make nix-show nix-test PYTHON=${{ matrix.python }} RF=${{ matrix.robotframework }}

@@ -8,6 +8,11 @@ CACHIX_CACHE ?= datakurre
 .PHONY: all
 all: test
 
+.PHONY: show
+show:
+	pip list
+	buildout -N annotate versions
+
 .PHONY: test
 test: ./bin/test
 	bin/test
