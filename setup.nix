@@ -4,7 +4,7 @@
 , robot ? "rf312"
 , pythonPackages ? builtins.getAttr (python + "Packages") pkgs
 , requirements ? ./. + "/nix/requirements-${python}-${robot}.nix"
-, src ? ./.
+, src ? pkgs.gitignoreSource ./.
 , buildInputs ? with pkgs; []
 , propagatedBuildInputs ? []
 }:
