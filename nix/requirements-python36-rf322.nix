@@ -20,10 +20,10 @@ self: super: {
   };
   "robotframework" = super.buildPythonPackage rec {
     pname = "robotframework";
-    version = "3.2.1";
+    version = "3.2.2";
     src = fetchurl {
-      url = "https://files.pythonhosted.org/packages/99/e0/57ed2b09192c36b5905a8cbfa98f0b15c42c34865ae21a1d1d33a50cb8be/robotframework-3.2.1-py2.py3-none-any.whl";
-      sha256 = "08xcw5wwx98d1i2pryf7y5lyi3k3dcadgl8acd0i2jfrmwak94il";
+      url = "https://files.pythonhosted.org/packages/38/43/e03efaa547a3158f0745c5ea7f1eafebd69d46f2c9aece3a8ba21992adc9/robotframework-3.2.2-py2.py3-none-any.whl";
+      sha256 = "1llx9bzf8yxh0ipk6sxknycpfczwzqx8rnwq0fxdmp66kpkjbhx0";
     };
     format = "wheel";
     doCheck = false;
