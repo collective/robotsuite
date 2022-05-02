@@ -23,6 +23,7 @@ from six import StringIO
 import doctest
 import logging
 import os
+import pkg_resources
 import re
 import shutil
 import string
@@ -30,7 +31,6 @@ import types
 import unicodedata
 import unittest
 
-from robot import parsing as robot_parsing
 from robot import model as robot_model
 from robot.output import LOGGER
 from robot.rebot import rebot as robot_rebot
@@ -39,6 +39,19 @@ from robot.reporting import ResultWriter
 from robot.running import TestSuiteBuilder
 
 from lxml import etree
+
+try:
+    pkg_resources.get_distribution('robotframework>=3.2a1')
+    HAS_RF32_PARSER = True
+except pkg_resources.VersionConflict:
+    import robot.parsing as robot_parsing
+    HAS_RF32_PARSER = False
+
+try:
+    assert robot_model.Criticality
+    HAS_CRITICALITY = True
+except AttributeError:
+    HAS_CRITICALITY = False
 
 try:
     loglevel = int(getattr(logging, os.environ.get('ROBOTSUITE_LOGLEVEL')))
@@ -248,25 +261,47 @@ class RobotTestCase(unittest.TestCase):
         unittest.TestCase.__init__(self)
 
         filename = doctest._module_relative_path(package, filename)
-        suite = robot_parsing.TestData(source=filename)
+        if HAS_RF32_PARSER:
+            builder = TestSuiteBuilder()
+            suite = builder.build(filename)
+        else:
+            suite = robot_parsing.TestData(source=filename)
         suite_parent = os.path.dirname(filename)
         self._relative_path = None
 
         def walk(child_suite, test_case, suite_parent):
             found = False
             if source and child_suite.source != source:
-                child_suite.testcase_table.tests = []
+                if HAS_RF32_PARSER:
+                    child_suite.tests = []
+                else:
+                    child_suite.testcase_table.tests = []
             elif name:
-                tests = child_suite.testcase_table.tests
-                child_suite.testcase_table.tests = \
-                    list(filter(lambda x: x.name == name, tests))
+                if HAS_RF32_PARSER:
+                    tests = child_suite.tests
+                    child_suite.tests = \
+                        list(filter(lambda x: x.name == name, tests))
+                else:
+                    tests = child_suite.testcase_table.tests
+                    child_suite.testcase_table.tests = \
+                        list(filter(lambda x: x.name == name, tests))
                 test_case._relative_path = \
                     os.path.relpath(child_suite.source, suite_parent)
-                if len(list(child_suite.testcase_table.tests)):
+                if HAS_RF32_PARSER:
+                    if len(list(child_suite.tests)):
+                        found = True
+                elif len(list(child_suite.testcase_table.tests)):
                     found = True
-            for grandchild in getattr(child_suite, 'children', [])[:]:
+            if HAS_RF32_PARSER:
+                attr_name = 'suites'
+            else:
+                attr_name = 'children'
+            for grandchild in getattr(child_suite, attr_name, [])[:]:
                 if not walk(grandchild, test_case, suite_parent):
-                    child_suite.children.remove(grandchild)
+                    if HAS_RF32_PARSER:
+                        child_suite.suites.remove(grandchild)
+                    else:
+                        child_suite.children.remove(grandchild)
                 else:
                     found = True
             return found
@@ -335,9 +370,12 @@ class RobotTestCase(unittest.TestCase):
         })
         LOGGER.register_console_logger(**output_config)
         LOGGER.info('Settings:\n%s' % six.text_type(settings))
-        suite = TestSuiteBuilder(
-            settings['SuiteNames'],
-            settings['WarnOnSkipped'])._build_suite(parsed)
+        if HAS_RF32_PARSER:
+            suite = parsed
+        else:
+            suite = TestSuiteBuilder(
+                settings['SuiteNames'],
+                settings['WarnOnSkipped'])._build_suite(parsed)
         suite.configure(**settings.suite_config)
         result = suite.run(settings)
         LOGGER.info("Tests execution ended. Statistics:\n%s"
@@ -369,6 +407,11 @@ class RobotTestCase(unittest.TestCase):
             'stdout': stdout,
             'critical': self._critical,
             'noncritical': self._noncritical,
+        } if HAS_CRITICALITY else {
+            'variable': self._variables,
+            'listener': ('robotsuite.RobotListener',),
+            'outputdir': self._robot_outputdir,
+            'stdout': stdout,
         }
         self._runTest(self._robot_suite, **options)
         stdout.seek(0)
@@ -458,21 +501,27 @@ class RobotTestCase(unittest.TestCase):
         # Save the merged 'output.xml' and generate merged reports
         with open('robot_output.xml', 'wb') as handle:
             handle.write(data.encode('utf-8'))
-        robot_rebot('robot_output.xml', stdout=stdout, output='NONE',
-                    log='robot_log.html', report='robot_report.html',
-                    critical=self._critical, noncritical=self._noncritical)
+
+        if HAS_CRITICALITY:
+            robot_rebot('robot_output.xml', stdout=stdout, output='NONE',
+                        log='robot_log.html', report='robot_report.html',
+                        critical=self._critical, noncritical=self._noncritical)
+        else:
+            robot_rebot('robot_output.xml', stdout=stdout, output='NONE',
+                        log='robot_log.html', report='robot_report.html')
 
         # If the test is critical, raise AssertionError when it has failed
-        criticality = robot_model.Criticality(
-            critical_tags=self._critical, non_critical_tags=self._noncritical)
-        is_critical = (
-            criticality.critical_tags
-            and criticality.critical_tags.match(self._tags)
-        ) or (
-            not criticality.non_critical_tags.match(self._tags)
-        )
-        if is_critical:
-            assert last_status == 'PASS', last_message
+        if HAS_CRITICALITY:
+            criticality = robot_model.Criticality(
+                critical_tags=self._critical, non_critical_tags=self._noncritical)
+            is_critical = (
+                criticality.critical_tags
+                and criticality.critical_tags.match(self._tags)
+            ) or (
+                not criticality.non_critical_tags.match(self._tags)
+            )
+            if is_critical:
+                assert last_status == 'PASS', last_message
 
 
 def RobotTestSuite(*paths, **kw):
@@ -500,7 +549,11 @@ def RobotTestSuite(*paths, **kw):
 
     for path in paths:
         filename = doctest._module_relative_path(kw['package'], path)
-        robot_suite = robot_parsing.TestData(source=filename)
+        if HAS_RF32_PARSER:
+            builder = TestSuiteBuilder()
+            robot_suite = builder.build(filename)
+        else:
+            robot_suite = robot_parsing.TestData(source=filename)
 
         # Split the robot suite into separate test cases
 
@@ -510,18 +563,30 @@ def RobotTestSuite(*paths, **kw):
             suite_base = os.path.basename(child_suite.source)
             suite_dir = os.path.splitext(suite_base)[0]
             outputdir.append(suite_dir)
-            for test in child_suite.testcase_table.tests:
+            if HAS_RF32_PARSER:
+                tests = child_suite.tests
+            else:
+                tests = child_suite.testcase_table.tests
+            for test in tests:
                 test_dir = normalize(test.name)
                 outputdir.append(test_dir)
+                if HAS_RF32_PARSER:
+                    tags = test.tags
+                else:
+                    tags = test.tags.value
                 suite.addTest(RobotTestCase(path, name=test.name,
-                                            tags=test.tags.value,
+                                            tags=tags,
                                             variables=variables,
                                             source=child_suite.source,
                                             outputdir='/'.join(outputdir),
                                             retry_count=retry_count,
                                             **kw))
                 outputdir.pop()
-            for grandchild in getattr(child_suite, 'children', []):
+            if HAS_RF32_PARSER:
+                attr_name = 'suites'
+            else:
+                attr_name = 'children'
+            for grandchild in getattr(child_suite, attr_name, []):
                 recurs(grandchild)
             outputdir.pop()
 
