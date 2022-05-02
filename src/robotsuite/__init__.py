@@ -407,6 +407,11 @@ class RobotTestCase(unittest.TestCase):
             'stdout': stdout,
             'critical': self._critical,
             'noncritical': self._noncritical,
+        } if HAS_CRITICALITY else {
+            'variable': self._variables,
+            'listener': ('robotsuite.RobotListener',),
+            'outputdir': self._robot_outputdir,
+            'stdout': stdout,
         }
         self._runTest(self._robot_suite, **options)
         stdout.seek(0)
@@ -496,9 +501,14 @@ class RobotTestCase(unittest.TestCase):
         # Save the merged 'output.xml' and generate merged reports
         with open('robot_output.xml', 'wb') as handle:
             handle.write(data.encode('utf-8'))
-        robot_rebot('robot_output.xml', stdout=stdout, output='NONE',
-                    log='robot_log.html', report='robot_report.html',
-                    critical=self._critical, noncritical=self._noncritical)
+
+        if HAS_CRITICALITY:
+            robot_rebot('robot_output.xml', stdout=stdout, output='NONE',
+                        log='robot_log.html', report='robot_report.html',
+                        critical=self._critical, noncritical=self._noncritical)
+        else:
+            robot_rebot('robot_output.xml', stdout=stdout, output='NONE',
+                        log='robot_log.html', report='robot_report.html')
 
         # If the test is critical, raise AssertionError when it has failed
         if HAS_CRITICALITY:
