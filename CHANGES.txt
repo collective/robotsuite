@@ -4,13 +4,17 @@ Changelog
 2.2.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
-
+- Add support for RF 4 and RF 5
+  [Asko Soukka]
+- Drop support in criticality witH RF 4 or later
+  [Asko Soukka]
+- Restore support for RF 3.2
+  [Asko Soukka]
 
 2.2.1 (2020-02-14)
 ------------------
 
-- Revert support for Robot Framework 3.2b1 due to observer
+- Revert support for Robot Framework 3.2b1 due to observee
   regression between 2.0.0 and 2.1.1
   [datakurre]
 
