@@ -5,8 +5,13 @@ ARGSTR ?= --argstr python $(PYTHON) --argstr robot $(ROBOT)
 
 CACHIX_CACHE ?= datakurre
 
+
 .PHONY: all
 all: test
+
+.PHONY: clean
+clean:
+	rm -rf .installed.cfg bin
 
 .PHONY: show
 show:
@@ -50,3 +55,81 @@ requirements: .cache ./nix/requirements-$(PYTHON)-$(ROBOT).nix
 requirements-$(PYTHON)-$(ROBOT).txt: .cache requirements.txt
 	nix-shell -p "(import ./nix {}).pip2nix.$(PYTHON)" --run "pip2nix generate -r requirements.txt robotframework==$(RF) --output=./nix/requirements-$(PYTHON)-$(ROBOT).nix"
 	@grep "pname =\|version =" ./nix/requirements-$(PYTHON)-$(ROBOT).nix|awk "ORS=NR%2?FS:RS"|sed 's|.*"\(.*\)";.*version = "\(.*\)".*|\1==\2|' > requirements-$(PYTHON)-$(ROBOT).txt
+
+.PHONY: nix
+nix:
+	make PYTHON=python27 RF=2.8.2 requirements
+	make PYTHON=python27 RF=2.8.7 requirements
+	make PYTHON=python27 RF=2.9.2 requirements
+	make PYTHON=python27 RF=3.0.4 requirements
+	make PYTHON=python27 RF=3.1.2 requirements
+	make PYTHON=python27 RF=3.2.2 requirements
+	make PYTHON=python27 RF=4.0.3 requirements
+	make PYTHON=python27 RF=4.1.3 requirements
+
+	make PYTHON=python36 RF=3.0.4 requirements
+	make PYTHON=python36 RF=3.1.2 requirements
+	make PYTHON=python36 RF=3.2.2 requirements
+	make PYTHON=python36 RF=4.0.3 requirements
+	make PYTHON=python36 RF=4.1.3 requirements
+	make PYTHON=python36 RF=5.0.0 requirements
+
+	make PYTHON=python37 RF=3.0.4 requirements
+	make PYTHON=python37 RF=3.1.2 requirements
+	make PYTHON=python37 RF=3.2.2 requirements
+	make PYTHON=python37 RF=4.0.3 requirements
+	make PYTHON=python37 RF=4.1.3 requirements
+	make PYTHON=python37 RF=5.0.0 requirements
+
+	make PYTHON=python38 RF=3.0.4 requirements
+	make PYTHON=python38 RF=3.1.2 requirements
+	make PYTHON=python38 RF=3.2.2 requirements
+	make PYTHON=python38 RF=4.0.3 requirements
+	make PYTHON=python38 RF=4.1.3 requirements
+	make PYTHON=python38 RF=5.0.0 requirements
+
+	make PYTHON=python39 RF=3.0.4 requirements
+	make PYTHON=python39 RF=3.1.2 requirements
+	make PYTHON=python39 RF=3.2.2 requirements
+	make PYTHON=python39 RF=4.0.3 requirements
+	make PYTHON=python39 RF=4.1.3 requirements
+	make PYTHON=python39 RF=5.0.0 requirements
+
+.PHONY: test-all
+test-all:
+	make PYTHON=python27 RF=2.8.2 clean nix-test
+	make PYTHON=python27 RF=2.8.7 clean nix-test
+	make PYTHON=python27 RF=2.9.2 clean nix-test
+	make PYTHON=python27 RF=3.0.4 clean nix-test
+	make PYTHON=python27 RF=3.1.2 clean nix-test
+	make PYTHON=python27 RF=3.2.2 clean nix-test
+	make PYTHON=python27 RF=4.0.3 clean nix-test
+	make PYTHON=python27 RF=4.1.3 clean nix-test
+
+	make python=python36 rf=3.0.4 clean nix-test
+	make PYTHON=python36 RF=3.1.2 clean nix-test
+	make PYTHON=python36 RF=3.2.2 clean nix-test
+	make PYTHON=python36 RF=4.0.3 clean nix-test
+	make PYTHON=python36 RF=4.1.3 clean nix-test
+	make PYTHON=python36 RF=5.0.0 clean nix-test
+
+	make PYTHON=python37 RF=3.0.4 clean nix-test
+	make PYTHON=python37 RF=3.1.2 clean nix-test
+	make PYTHON=python37 RF=3.2.2 clean nix-test
+	make PYTHON=python37 RF=4.0.3 clean nix-test
+	make PYTHON=python37 RF=4.1.3 clean nix-test
+	make PYTHON=python37 RF=5.0.0 clean nix-test
+
+	make PYTHON=python38 RF=3.0.4 clean nix-test
+	make PYTHON=python38 RF=3.1.2 clean nix-test
+	make PYTHON=python38 RF=3.2.2 clean nix-test
+	make PYTHON=python38 RF=4.0.3 clean nix-test
+	make PYTHON=python38 RF=4.1.3 clean nix-test
+	make PYTHON=python38 RF=5.0.0 clean nix-test
+
+	make PYTHON=python39 RF=3.0.4 clean nix-test
+	make PYTHON=python39 RF=3.1.2 clean nix-test
+	make PYTHON=python39 RF=3.2.2 clean nix-test
+	make PYTHON=python39 RF=4.0.3 clean nix-test
+	make PYTHON=python39 RF=4.1.3 clean nix-test
+	make PYTHON=python39 RF=5.0.0 clean nix-test

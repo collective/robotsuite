@@ -11,6 +11,8 @@ jobs:
         python: [python27, python36, python37, python38, python39]
         robotframework: [2.8.2, 2.8.7, 2.9.2, 3.0.4, 3.1.2, 3.2.2, 4.0.3, 4.1.3, 5.0.0]
         exclude:
+          - python: python27
+            robotframework: 5.0.0
           - python: python36
             robotframework: 2.8.2
           - python: python36

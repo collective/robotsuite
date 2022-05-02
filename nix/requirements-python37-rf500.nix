@@ -6,10 +6,10 @@
 self: super: {
   "lxml" = super.buildPythonPackage rec {
     pname = "lxml";
-    version = "4.6.3";
+    version = "4.8.0";
     src = fetchurl {
-      url = "https://files.pythonhosted.org/packages/e5/21/a2e4517e3d216f0051687eea3d3317557bde68736f038a3b105ac3809247/lxml-4.6.3.tar.gz";
-      sha256 = "0s14r1w2x9sdlcsw8mxiqgw4rz5zs5lpqpxrfyn4a1mkndqqbdrr";
+      url = "https://files.pythonhosted.org/packages/3b/94/e2b1b3bad91d15526c7e38918795883cee18b93f6785ea8ecf13f8ffa01e/lxml-4.8.0.tar.gz";
+      sha256 = "08vf1kaqi1l2zcfks0bmwqybvq9miwi2ibmbm568l8p6c3y64gzn";
     };
     format = "setuptools";
     doCheck = false;
@@ -20,10 +20,10 @@ self: super: {
   };
   "robotframework" = super.buildPythonPackage rec {
     pname = "robotframework";
-    version = "4.0.2";
+    version = "5.0";
     src = fetchurl {
-      url = "https://files.pythonhosted.org/packages/3d/47/9004149860f63845bd51bbe722995ee0f142908ba63a555d37cdced96579/robotframework-4.0.2-py2.py3-none-any.whl";
-      sha256 = "0d2yjjnakxdbl6bisnnk9abs31j6s2ac3midbzv2v73ddxkmxplw";
+      url = "https://files.pythonhosted.org/packages/1e/c6/f5e03282969db2fb8a15fd56df1b04e6191eb32af767f00ac0fdf05441fc/robotframework-5.0-py3-none-any.whl";
+      sha256 = "0lwgzxv6bbflkcb4mpzyzjnirf55q8x5n7gcyjyc8bayi0v2d4gf";
     };
     format = "wheel";
     doCheck = false;
@@ -48,10 +48,10 @@ self: super: {
   };
   "zc.buildout" = super.buildPythonPackage rec {
     pname = "zc.buildout";
-    version = "2.13.4";
+    version = "2.13.7";
     src = fetchurl {
-      url = "https://files.pythonhosted.org/packages/b1/10/c1d4e7cf3659c048752395df34491d71bc38b474ff9f1be27931452c6080/zc.buildout-2.13.4-py2.py3-none-any.whl";
-      sha256 = "0j06d3kc4pbayvai3jj57zj1ajzb7sp07lrb6zvqnjgzw4p3nk8p";
+      url = "https://files.pythonhosted.org/packages/8b/48/2e0bca92a331d262ea13a232d161f4e11c6ad5dd63f632c500a207a61334/zc.buildout-2.13.7-py2.py3-none-any.whl";
+      sha256 = "1r95skki6xn30q87m754yl6imzfnfhvz71sh5jh48q74lakin5q4";
     };
     format = "wheel";
     doCheck = false;
@@ -100,10 +100,10 @@ self: super: {
   };
   "zope.exceptions" = super.buildPythonPackage rec {
     pname = "zope.exceptions";
-    version = "4.4";
+    version = "4.5";
     src = fetchurl {
-      url = "https://files.pythonhosted.org/packages/2a/1a/55aac95b3fe46de512905af49189f055df1404147bcedb3fe81476597799/zope.exceptions-4.4-py2.py3-none-any.whl";
-      sha256 = "0qdgyiz53g37zcxfa923rgvf0skdws3v9a0fjm25kghfx43wr65v";
+      url = "https://files.pythonhosted.org/packages/0a/02/9a168c4fd798fbfcebbbef49065b0b6fb9c125a98cff7c6f1fbedc484b97/zope.exceptions-4.5-py2.py3-none-any.whl";
+      sha256 = "1r7rc7cym41d96kipfqqfmgp1r3dvxb5sqcmyywgzq7b5pzpkpsz";
     };
     format = "wheel";
     doCheck = false;
@@ -133,10 +133,10 @@ self: super: {
   };
   "zope.testrunner" = super.buildPythonPackage rec {
     pname = "zope.testrunner";
-    version = "5.3.0";
+    version = "5.4.0";
     src = fetchurl {
-      url = "https://files.pythonhosted.org/packages/0e/34/a1d39bf879096db480d9f9b3b3c6719a597d1dfc9c5c55924a697c6f7894/zope.testrunner-5.3.0-py2.py3-none-any.whl";
-      sha256 = "10kwcxp64av7zm1bcv8sgm12x7k5dlk5sa1br6a3p0kxb0zicga6";
+      url = "https://files.pythonhosted.org/packages/57/c3/ed2a94bbb2d08bf8e1aa2cc1c712994bf18146e37d41682ab42c442b478f/zope.testrunner-5.4.0-py2.py3-none-any.whl";
+      sha256 = "11rcqca6l0qgnzascbh91rgcpfspv0aj30vj4d4q6q53cawbwzxf";
     };
     format = "wheel";
     doCheck = false;
