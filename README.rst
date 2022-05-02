@@ -71,6 +71,9 @@ mapped into corresponding test variable without the ``ROBOT_``-prefix.
 Declaring tests non-critical by given set of tags
 -------------------------------------------------
 
+.. note:: Criticality is no-longer supported in Robot Framework >= 4.0 and has been
+   replaced with SKIP status. Robotsuite does not take a stance on SKIP status yet.
+
 Robot Framework supports declaring tests with given tags as *non-critical*
 to prevent their failing to fail the complete build on CI. This is supported
 as keyword argument for *RobotTestSuite* as follows:
