@@ -501,7 +501,6 @@ class RobotTestCase(unittest.TestCase):
         # Save the merged 'output.xml' and generate merged reports
         with open('robot_output.xml', 'wb') as handle:
             handle.write(data.encode('utf-8'))
-
         if HAS_CRITICALITY:
             robot_rebot('robot_output.xml', stdout=stdout, output='NONE',
                         log='robot_log.html', report='robot_report.html',
@@ -511,6 +510,8 @@ class RobotTestCase(unittest.TestCase):
                         log='robot_log.html', report='robot_report.html')
 
         # If the test is critical, raise AssertionError when it has failed
+        # By default, all tests are critical.
+        is_critical = True
         if HAS_CRITICALITY:
             criticality = robot_model.Criticality(
                 critical_tags=self._critical, non_critical_tags=self._noncritical)
@@ -520,8 +521,8 @@ class RobotTestCase(unittest.TestCase):
             ) or (
                 not criticality.non_critical_tags.match(self._tags)
             )
-            if is_critical:
-                assert last_status == 'PASS', last_message
+        if is_critical:
+            assert last_status == 'PASS', last_message
 
 
 def RobotTestSuite(*paths, **kw):
