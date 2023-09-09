@@ -451,12 +451,15 @@ class RobotTestCase(unittest.TestCase):
             path = os.path.join(dirname, filename)
             if os.path.isfile(path):
                 copy_filename = filename\
-                    .replace(os.path.sep, '')\
+                    .replace(os.path.sep, '_')\
                     .replace(os.pardir, '')
                 shutil.copyfile(path, "%s%s" % (prefix, copy_filename))
         # Fix 'a' and 'img' tags to target the copied versions
-        data = re.sub(r'(href|src)="([^"]+\.png)"',
-                      '\\1="%s\\2"' % prefix, data)
+        for attr, value in re.findall(r'(href|src)="([^"]+\.png)"', data):
+            data = data.replace(
+                attr + '="' + value + '"',
+                attr + '="' + prefix + value.replace(os.path.sep, '_') + '"',
+            )
 
         # Try to merge the second 'output.xml' into the first one or into the
         # final one from the previous test run when requested by setting
