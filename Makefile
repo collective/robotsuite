@@ -36,6 +36,17 @@ cache:
 	nix-store --query --references $$(nix-instantiate default.nix $(ARGSTR)) | \
 	xargs nix-store --realise | xargs nix-store --query --requisites | cachix push $(CACHIX_CACHE)
 
+.PHONY: cache-ll
+cache-all:
+	PYTHON=38 RF=3.2.2 make cache
+	PYTHON=38 RF=4.0.3 make cache
+	PYTHON=38 RF=4.1.3 make cache
+	PYTHON=38 RF=5.0.0 make cache
+	PYTHON=39 RF=3.2.2 make cache
+	PYTHON=39 RF=4.0.3 make cache
+	PYTHON=39 RF=4.1.3 make cache
+	PYTHON=39 RF=5.0.0 make cache
+
 ###
 
 .cache:
