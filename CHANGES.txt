@@ -1,7 +1,7 @@
 Changelog
 =========
 
-2.3.2 (unreleased)
+2.3.2 (2023-09-09)
 ------------------
 
 - Fix to support screenshots / images below sub directories
