@@ -11,11 +11,11 @@ jobs:
         python: [python38, python39]
         robotframework: [3.2.2, 4.0.3, 4.1.3, 5.0.0]
     steps:
-    - uses: actions/checkout@v3.0.2
-    - uses: cachix/install-nix-action@v17
+    - uses: actions/checkout@v4.0.0
+    - uses: cachix/install-nix-action@v22
       with:
         nix_path: nixpkgs=channel:nixos-unstable
-    - uses: cachix/cachix-action@v10
+    - uses: cachix/cachix-action@v12
       with:
         name: datakurre
         signingKey: '${{ secrets.CACHIX_SIGNING_KEY }}'
