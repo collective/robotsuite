@@ -1,4 +1,4 @@
-lxml==4.8.0
+lxml==4.9.3
 robotframework==4.0.3
 six==1.16.0
 zc.buildout==2.13.7

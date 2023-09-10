@@ -6,10 +6,10 @@
 self: super: {
   "lxml" = super.buildPythonPackage rec {
     pname = "lxml";
-    version = "4.8.0";
+    version = "4.9.3";
     src = fetchurl {
-      url = "https://files.pythonhosted.org/packages/3b/94/e2b1b3bad91d15526c7e38918795883cee18b93f6785ea8ecf13f8ffa01e/lxml-4.8.0.tar.gz";
-      sha256 = "08vf1kaqi1l2zcfks0bmwqybvq9miwi2ibmbm568l8p6c3y64gzn";
+      url = "https://files.pythonhosted.org/packages/30/39/7305428d1c4f28282a4f5bdbef24e0f905d351f34cf351ceb131f5cddf78/lxml-4.9.3.tar.gz";
+      sha256 = "177d9rgji6gfk8sxb7qjhqg8v1x0r8x94sh6pjwrwv227baqnqj8";
     };
     format = "setuptools";
     doCheck = false;
