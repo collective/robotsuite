@@ -23,7 +23,6 @@ from six import StringIO
 import doctest
 import logging
 import os
-import pkg_resources
 import re
 import shutil
 import string
@@ -38,13 +37,15 @@ from robot.conf import RobotSettings
 from robot.reporting import ResultWriter
 from robot.running import TestSuiteBuilder
 
+from importlib.metadata import distribution
 from lxml import etree
+from packaging.version import parse as version_parse
 
-try:
-    pkg_resources.get_distribution('robotframework>=3.2a1')
+dist = distribution("robotframework>=3.2a1")
+
+if version_parse(dist.version) >= version_parse("3.2a1"):
     HAS_RF32_PARSER = True
-except pkg_resources.VersionConflict:
-    import robot.parsing as robot_parsing
+else:
     HAS_RF32_PARSER = False
 
 try:
