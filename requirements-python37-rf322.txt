@@ -1,9 +1,0 @@
-lxml==4.9.3
-robotframework==3.2.2
-six==1.16.0
-zc.buildout==2.13.7
-zc.recipe.egg==2.0.7
-zc.recipe.testrunner==2.2
-zope.exceptions==4.5
-zope.interface==5.4.0
-zope.testrunner==5.4.0

@@ -1,8 +1,0 @@
-lxml
-six
-zc.buildout
-zc.recipe.egg
-zc.recipe.testrunner
-zope.exceptions
-zope.interface
-zope.testrunner

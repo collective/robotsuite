@@ -1,8 +1,7 @@
 *** Variables ***
+${GLOBAL}       0
 
-${GLOBAL}  0
 
 *** Keywords ***
-
 Increment global variable
-    Set global variable  ${GLOBAL}  ${GLOBAL + 1}
+    Set global variable    ${GLOBAL}    ${GLOBAL + 1}
