@@ -1,6 +1,6 @@
 [project]
 name = "robotsuite"
-version = "3.0.0rc1"
+version = "3.0.0rc2.dev0"
 description = "Robot Framework test suite for Python unittest framework"
 readme = "README.rst"
 authors = [
