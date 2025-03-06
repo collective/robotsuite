@@ -1,6 +1,6 @@
 [project]
 name = "robotsuite"
-version = "3.0.0.dev0"
+version = "3.0.0rc2.dev0"
 description = "Robot Framework test suite for Python unittest framework"
 readme = "README.rst"
 authors = [
@@ -32,6 +32,7 @@ dev = [
     "black>=25.1.0",
     "isort>=6.0.1",
     "zc-buildout>=4.1",
+    "zest-releaser>=9.4.0",
 ]
 
 [project.optional-dependencies]
