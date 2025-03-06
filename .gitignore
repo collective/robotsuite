@@ -2,10 +2,12 @@ syntax: glob
 *.egg-info
 *.mo
 *.pyc
-.cache/
+.devenv*
 .idea
 .installed.cfg
-.ropeproject
+.pre-commit-config.yaml
+.vscode/
+/eggs
 /bin
 /buildout-cache
 /develop-eggs
@@ -13,3 +15,4 @@ syntax: glob
 /parts
 /robot_*
 /test_*
+devenv.local.nix

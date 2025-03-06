@@ -1,173 +1,83 @@
+help:
+	@grep -Eh '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' | uniq
+
 RF ?= 3.1.2
 ROBOT ?= rf$(subst .,,$(RF))
 PYTHON ?= python39
-ARGSTR ?= --argstr python $(PYTHON) --argstr robot $(ROBOT)
-
-CACHIX_CACHE ?= datakurre
-
-.PHONY: all
-all: test
 
 .PHONY: clean
-clean:
-	rm -rf .installed.cfg bin
+clean:  ## Clean up build artifacts
+	rm -rf .installed.cfg bin eggs parts devenv.local.nix
 
 .PHONY: show
-show:
+show:  ## Show installed packages
 	pip list
 	buildout -N annotate versions
 
 .PHONY: test
-test: ./bin/test
+test: ./bin/test  ## Run tests
 	bin/test
 
-.PHONY: nix-%
-nix-%:
-	nix-shell setup.nix $(ARGSTR) -A package --run "$(MAKE) $*"
+.PHONY: devenv-%
+devenv-%: devenv.local.nix
+	devenv shell $(MAKE) $*
 
-nix-env:
-	nix-build setup.nix $(ARGSTR) -A env
-
-nix-shell:
-	nix-shell setup.nix $(ARGSTR) -A package
-
-.PHONY: cache
-cache:
-	nix-store --query --references $$(nix-instantiate default.nix $(ARGSTR)) | \
-	xargs nix-store --realise | xargs nix-store --query --requisites | cachix push $(CACHIX_CACHE)
+shell: devenv.local.nix  ## Start a shell with the development environment
+	devenv shell
 
 ###
-
-.cache:
-	mkdir -p .cache
-	if [ -d ~/.cache/pip ]; then ln -s ~/.cache/pip ./.cache; fi
 
 bin/test: buildout.cfg
 	buildout -N
 
-.PHONY: requirements
-requirements: .cache ./nix/requirements-$(PYTHON)-$(ROBOT).nix
+.PHONY: test\ all
+test\ all:  ## Test all supported versions
+	make PYTHON=python39 RF=3.0.4 clean devenv-test
+	make PYTHON=python39 RF=3.1.2 clean devenv-test
+	make PYTHON=python39 RF=3.2.2 clean devenv-test
+	make PYTHON=python39 RF=4.0.3 clean devenv-test
+	make PYTHON=python39 RF=4.1.3 clean devenv-test
+	make PYTHON=python39 RF=5.0.1 clean devenv-test
+	make PYTHON=python39 RF=6.0.2 clean devenv-test
+	make PYTHON=python39 RF=6.1.1 clean devenv-test
+	make PYTHON=python39 RF=7.0.1 clean devenv-test
+	make PYTHON=python39 RF=7.1.1 clean devenv-test
+	make PYTHON=python39 RF=7.2.2 clean devenv-test
 
-./nix/requirements-$(PYTHON)-$(ROBOT).nix: .cache requirements-$(PYTHON)-$(ROBOT).txt
-	nix-shell -p "(import ./nix {}).pip2nix.$(PYTHON)" --run "pip2nix generate -r requirements-$(PYTHON)-$(ROBOT).txt --output=./nix/requirements-$(PYTHON)-$(ROBOT).nix"
+	make PYTHON=python310 RF=3.2.2 clean devenv-test
+	make PYTHON=python310 RF=4.0.3 clean devenv-test
+	make PYTHON=python310 RF=4.1.3 clean devenv-test
+	make PYTHON=python310 RF=5.0.1 clean devenv-test
+	make PYTHON=python310 RF=6.0.2 clean devenv-test
+	make PYTHON=python310 RF=6.1.1 clean devenv-test
+	make PYTHON=python310 RF=7.0.1 clean devenv-test
+	make PYTHON=python310 RF=7.1.1 clean devenv-test
+	make PYTHON=python310 RF=7.2.2 clean devenv-test
 
-requirements-$(PYTHON)-$(ROBOT).txt: .cache requirements.txt
-	nix-shell -p "(import ./nix {}).pip2nix.$(PYTHON)" --run "pip2nix generate -r requirements.txt robotframework==$(RF) --output=./nix/requirements-$(PYTHON)-$(ROBOT).nix"
-	@grep "pname =\|version =" ./nix/requirements-$(PYTHON)-$(ROBOT).nix|awk "ORS=NR%2?FS:RS"|sed 's|.*"\(.*\)";.*version = "\(.*\)".*|\1==\2|' > requirements-$(PYTHON)-$(ROBOT).txt
+	make PYTHON=python311 RF=3.2.2 clean devenv-test
+	make PYTHON=python311 RF=4.0.3 clean devenv-test
+	make PYTHON=python311 RF=4.1.3 clean devenv-test
+	make PYTHON=python311 RF=5.0.1 clean devenv-test
+	make PYTHON=python311 RF=6.0.2 clean devenv-test
+	make PYTHON=python311 RF=6.1.1 clean devenv-test
+	make PYTHON=python311 RF=7.0.1 clean devenv-test
+	make PYTHON=python311 RF=7.1.1 clean devenv-test
+	make PYTHON=python311 RF=7.2.2 clean devenv-test
 
-.PHONY: nix
-nix:
-	make PYTHON=python27 RF=2.8.2 requirements
-	make PYTHON=python27 RF=2.8.7 requirements
-	make PYTHON=python27 RF=2.9.2 requirements
-	make PYTHON=python27 RF=3.0.4 requirements
-	make PYTHON=python27 RF=3.1.2 requirements
-	make PYTHON=python27 RF=3.2.2 requirements
-	make PYTHON=python27 RF=4.0.3 requirements
-	make PYTHON=python27 RF=4.1.3 requirements
+	make PYTHON=python312 RF=3.2.2 clean devenv-test
+	make PYTHON=python312 RF=4.0.3 clean devenv-test
+	make PYTHON=python312 RF=4.1.3 clean devenv-test
+	make PYTHON=python312 RF=5.0.1 clean devenv-test
+	make PYTHON=python312 RF=6.0.2 clean devenv-test
+	make PYTHON=python312 RF=6.1.1 clean devenv-test
+	make PYTHON=python312 RF=7.0.1 clean devenv-test
+	make PYTHON=python312 RF=7.1.1 clean devenv-test
+	make PYTHON=python312 RF=7.2.2 clean devenv-test
 
-	make PYTHON=python36 RF=3.0.4 requirements
-	make PYTHON=python36 RF=3.1.2 requirements
-	make PYTHON=python36 RF=3.2.2 requirements
-	make PYTHON=python36 RF=4.0.3 requirements
-	make PYTHON=python36 RF=4.1.3 requirements
-	make PYTHON=python36 RF=5.0.0 requirements
+uv.lock:
+	uv lock
+	sed -i 's| or (extra[^"]*||g' uv.lock
+	# In addition, all robotframework deps must be removed from uv.lock package.metadata 
 
-	make PYTHON=python37 RF=3.0.4 requirements
-	make PYTHON=python37 RF=3.1.2 requirements
-	make PYTHON=python37 RF=3.2.2 requirements
-	make PYTHON=python37 RF=4.0.3 requirements
-	make PYTHON=python37 RF=4.1.3 requirements
-	make PYTHON=python37 RF=5.0.0 requirements
-
-	make PYTHON=python38 RF=3.0.4 requirements
-	make PYTHON=python38 RF=3.1.2 requirements
-	make PYTHON=python38 RF=3.2.2 requirements
-	make PYTHON=python38 RF=4.0.3 requirements
-	make PYTHON=python38 RF=4.1.3 requirements
-	make PYTHON=python38 RF=5.0.0 requirements
-
-	make PYTHON=python39 RF=3.0.4 requirements
-	make PYTHON=python39 RF=3.1.2 requirements
-	make PYTHON=python39 RF=3.2.2 requirements
-	make PYTHON=python39 RF=4.0.3 requirements
-	make PYTHON=python39 RF=4.1.3 requirements
-	make PYTHON=python39 RF=5.0.0 requirements
-
-.PHONY: test-all
-test-all:
-	make PYTHON=python27 RF=2.8.2 clean nix-test
-	make PYTHON=python27 RF=2.8.7 clean nix-test
-	make PYTHON=python27 RF=2.9.2 clean nix-test
-	make PYTHON=python27 RF=3.0.4 clean nix-test
-	make PYTHON=python27 RF=3.1.2 clean nix-test
-	make PYTHON=python27 RF=3.2.2 clean nix-test
-	make PYTHON=python27 RF=4.0.3 clean nix-test
-	make PYTHON=python27 RF=4.1.3 clean nix-test
-
-	make python=python36 rf=3.0.4 clean nix-test
-	make PYTHON=python36 RF=3.1.2 clean nix-test
-	make PYTHON=python36 RF=3.2.2 clean nix-test
-	make PYTHON=python36 RF=4.0.3 clean nix-test
-	make PYTHON=python36 RF=4.1.3 clean nix-test
-	make PYTHON=python36 RF=5.0.0 clean nix-test
-
-	make PYTHON=python37 RF=3.0.4 clean nix-test
-	make PYTHON=python37 RF=3.1.2 clean nix-test
-	make PYTHON=python37 RF=3.2.2 clean nix-test
-	make PYTHON=python37 RF=4.0.3 clean nix-test
-	make PYTHON=python37 RF=4.1.3 clean nix-test
-	make PYTHON=python37 RF=5.0.0 clean nix-test
-
-	make PYTHON=python38 RF=3.0.4 clean nix-test
-	make PYTHON=python38 RF=3.1.2 clean nix-test
-	make PYTHON=python38 RF=3.2.2 clean nix-test
-	make PYTHON=python38 RF=4.0.3 clean nix-test
-	make PYTHON=python38 RF=4.1.3 clean nix-test
-	make PYTHON=python38 RF=5.0.0 clean nix-test
-
-	make PYTHON=python39 RF=3.0.4 clean nix-test
-	make PYTHON=python39 RF=3.1.2 clean nix-test
-	make PYTHON=python39 RF=3.2.2 clean nix-test
-	make PYTHON=python39 RF=4.0.3 clean nix-test
-	make PYTHON=python39 RF=4.1.3 clean nix-test
-	make PYTHON=python39 RF=5.0.0 clean nix-test
-
-.PHONY: test-all
-cache-all:
-	make PYTHON=python27 RF=2.8.2 cache
-	make PYTHON=python27 RF=2.8.7 cache
-	make PYTHON=python27 RF=2.9.2 cache
-	make PYTHON=python27 RF=3.0.4 cache
-	make PYTHON=python27 RF=3.1.2 cache
-	make PYTHON=python27 RF=3.2.2 cache
-	make PYTHON=python27 RF=4.0.3 cache
-	make PYTHON=python27 RF=4.1.3 cache
-
-	make python=python36 rf=3.0.4 cache
-	make PYTHON=python36 RF=3.1.2 cache
-	make PYTHON=python36 RF=3.2.2 cache
-	make PYTHON=python36 RF=4.0.3 cache
-	make PYTHON=python36 RF=4.1.3 cache
-	make PYTHON=python36 RF=5.0.0 cache
-
-	make PYTHON=python37 RF=3.0.4 cache
-	make PYTHON=python37 RF=3.1.2 cache
-	make PYTHON=python37 RF=3.2.2 cache
-	make PYTHON=python37 RF=4.0.3 cache
-	make PYTHON=python37 RF=4.1.3 cache
-	make PYTHON=python37 RF=5.0.0 cache
-
-	make PYTHON=python38 RF=3.0.4 cache
-	make PYTHON=python38 RF=3.1.2 cache
-	make PYTHON=python38 RF=3.2.2 cache
-	make PYTHON=python38 RF=4.0.3 cache
-	make PYTHON=python38 RF=4.1.3 cache
-	make PYTHON=python38 RF=5.0.0 cache
-
-	make PYTHON=python39 RF=3.0.4 cache
-	make PYTHON=python39 RF=3.1.2 cache
-	make PYTHON=python39 RF=3.2.2 cache
-	make PYTHON=python39 RF=4.0.3 cache
-	make PYTHON=python39 RF=4.1.3 cache
-	make PYTHON=python39 RF=5.0.0 cache
+devenv.local.nix:
+	@echo '{ pkgs, ...}: { languages.python = { interpreter = pkgs.$(PYTHON); dependencies = [ "$(ROBOT)" "dev" ]; }; }' > devenv.local.nix

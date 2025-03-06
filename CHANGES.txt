@@ -1,11 +1,14 @@
 Changelog
 =========
 
-2.3.3 (unreleased)
+3.0.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Drop `pkg_resources` usage and replace it with `importlib.metadata` and `packaging.
+  [gforcada]
 
+- Drop support for Python 2
+  [datakurre]
 
 2.3.2 (2023-09-09)
 ------------------
