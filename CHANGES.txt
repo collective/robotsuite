@@ -1,8 +1,8 @@
 Changelog
 =========
 
-3.0.0 (unreleased)
-------------------
+3.0.0rc1 (2025-03-06)
+---------------------
 
 - Drop `pkg_resources` usage and replace it with `importlib.metadata` and `packaging.
   [gforcada]
