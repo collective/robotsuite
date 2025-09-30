@@ -13,6 +13,7 @@ clean:  ## Clean up build artifacts
 show:  ## Show installed packages
 	pip list
 	buildout -N annotate versions
+	@python -c "from importlib import metadata; print('\n'.join(sorted(d.metadata['Name'] + f'=={d.version}' for d in metadata.distributions() if d.metadata['Name'].lower() in ['robotframework'])))"
 
 .PHONY: test
 test: ./bin/test  ## Run tests
@@ -80,4 +81,4 @@ uv.lock:
 	# In addition, all robotframework deps must be removed from uv.lock package.metadata 
 
 devenv.local.nix:
-	@echo '{ pkgs, ...}: { languages.python = { interpreter = pkgs.$(PYTHON); dependencies = [ "$(ROBOT)" "dev" ]; }; }' > devenv.local.nix
+	@echo '{ pkgs, ...}: { cachix.push = "datakurre"; languages.python = { interpreter = pkgs.$(PYTHON); dependencies = [ "$(ROBOT)" "dev" ]; }; }' > devenv.local.nix

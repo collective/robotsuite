@@ -7,18 +7,36 @@
     ./devenv/modules/python.nix
   ];
 
-  languages.python.pyprojectOverrides = final: prev: {
-    "hatchling" = prev."hatchling".overrideAttrs (old: {
-      propagatedBuildInputs = [ final."editables" ];
-    });
-    "robotframework" = prev."robotframework".overrideAttrs (old: {
-      nativeBuildInputs =
-        old.nativeBuildInputs
-        ++ final.resolveBuildSystem ({
-          "setuptools" = [ ];
+  languages.python.pyprojectOverrides =
+    final: prev:
+    let
+      packagesToBuildWithSetuptools = [
+        "robotframework"
+      ];
+    in
+    {
+      "calver" = prev."calver".overrideAttrs (old: {
+        postPatch = ''
+          substituteInPlace pyproject.toml \
+            --replace-fail 'license = "Apache-2.0"' 'license = {text = "Apache-2.0"}'
+        '';
+      });
+      "hatchling" = prev."hatchling".overrideAttrs (old: {
+        propagatedBuildInputs = [ final."editables" ];
+      });
+    }
+    // builtins.listToAttrs (
+      map (pkg: {
+        name = pkg;
+        value = prev.${pkg}.overrideAttrs (old: {
+          nativeBuildInputs =
+            old.nativeBuildInputs
+            ++ final.resolveBuildSystem ({
+              "setuptools" = [ ];
+            });
         });
-    });
-  };
+      }) packagesToBuildWithSetuptools
+    );
 
   packages = [
     pkgs.gnumake
@@ -30,6 +48,7 @@
   enterShell = ''
     unset PYTHONPATH
     export UV_NO_SYNC=1
+    export UV_PYTHON_PREFERENCE=system
     export UV_PYTHON_DOWNLOADS=never
     export REPO_ROOT=$(git rev-parse --show-toplevel)
   '';
