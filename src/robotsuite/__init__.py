@@ -231,7 +231,6 @@ def merge(a, b):
             else:
                 for grandchild in child.iterchildren():
                     errors[0].append(grandchild)
-        a.attrib.update(b.attrib)
 
 
 class RobotListener(object):
